@@ -1,0 +1,65 @@
+---
+title: "analysis"
+author: "Yong Lee"
+date: "5/5/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# clear
+rm(list = ls())
+
+# load packages 
+library(tidyverse)
+library(gganimate)
+
+# load data
+data <- read_rds("shiny/raw-data/data_final.rds")
+season <- read_rds("shiny/raw-data/data_season.rds")
+```
+
+```{r avg_stats}
+# group teams by year and threshold parameter
+finals <- season %>% 
+  mutate(threshold = as.factor(ifelse(tour_games >= 6, 1, 0))) %>% 
+  select(adjoe:wab, year, win_pct, threshold) %>% 
+  group_by(year, threshold) %>% 
+  summarize_all(mean) 
+saveRDS(finals, "shiny/raw-data/finals.rds")
+
+final_4 <- season %>% 
+  mutate(threshold = as.factor(ifelse(tour_games >= 5, 1, 0))) %>% 
+  select(adjoe:wab, year, win_pct, threshold) %>% 
+  group_by(year, threshold) %>% 
+  summarize_all(mean)
+saveRDS(final_4, "shiny/raw-data/final_4.rds")
+
+elite_8 <- season %>% 
+  mutate(threshold = as.factor(ifelse(tour_games >= 4, 1, 0))) %>% 
+  select(adjoe:wab, year, win_pct, threshold) %>% 
+  group_by(year, threshold) %>% 
+  summarize_all(mean)
+saveRDS(elite_8, "shiny/raw-data/elite_8.rds")
+
+sweet_16 <- season %>% 
+  mutate(threshold = as.factor(ifelse(tour_games >= 3, 1, 0))) %>% 
+  select(adjoe:wab, year, win_pct, threshold) %>% 
+  group_by(year, threshold) %>% 
+  summarize_all(mean)
+saveRDS(sweet_16, "shiny/raw-data/sweet_16.rds")
+
+round_32 <- season %>% 
+  mutate(threshold = as.factor(ifelse(tour_games >= 2, 1, 0))) %>% 
+  select(adjoe:wab, year, win_pct, threshold) %>% 
+  group_by(year, threshold) %>% 
+  summarize_all(mean)
+saveRDS(round_32, "shiny/raw-data/round_32.rds")
+
+# plot comparison between qualifiers and non-qualifiers
+finals %>% 
+  ggplot(aes(year, win_pct)) + 
+  geom_line(aes(group = threshold, color = threshold)) +
+  theme_classic()
+```
