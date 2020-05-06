@@ -12,7 +12,7 @@ sweet_16 <- read_rds("raw-data/sweet_16.rds")
 round_32 <- read_rds("raw-data/round_32.rds")
 
 # assign dataset variables
-statistics <- c("Adjusted Offensive Efficiency" = "adjoe", "Adjusted Defensive Efficiency" = "adjde", "Power Rating" = "barthag", "Effective Field Goal Percentage" = "efg_o", "Effective Field Goal Percentage Allowed" = "efg_d", "Turnover Percentage Allowed" = "tor", "Turnover Percentage Committed" = "tord", "Offensive Rebound Percentage" = "orb", "Defensive Rebound Percentage" = "drb", "Free Throw Rate" = "ftr", "Free Throw Rate Allowed" = "ftrd", "Two-Point Shooting Percentage" = "2p_o", "Two-Point Shooting Percentage Allowed" = "2p_d", "Three-Point Shooting Percentage" = "3p_o", "Three-Point Shooting Percentage Allowed" = "3p_d", "Adjusted Tempo" = "adj_t", "Wins Above Bubble" = "wab", "Win Percentage" = "win_pct")
+statistics <- c("Adjusted Offensive Efficiency" = "adjoe", "Adjusted Defensive Efficiency" = "adjde", "Power Rating" = "barthag", "Effective Field Goal Percentage" = "efg_o", "Effective Field Goal Percentage Allowed" = "efg_d", "Turnover Rate" = "tor", "Steal Rate" = "tord", "Offensive Rebound Percentage" = "orb", "Defensive Rebound Percentage" = "drb", "Free Throw Rate" = "ftr", "Free Throw Rate Allowed" = "ftrd", "Two-Point Shooting Percentage" = "2p_o", "Two-Point Shooting Percentage Allowed" = "2p_d", "Three-Point Shooting Percentage" = "3p_o", "Three-Point Shooting Percentage Allowed" = "3p_d", "Adjusted Tempo" = "adj_t", "Wins Above Bubble" = "wab", "Win Percentage" = "win_pct")
 
 # ui
 ui <- navbarPage(
