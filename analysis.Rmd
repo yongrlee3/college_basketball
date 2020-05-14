@@ -14,13 +14,18 @@ rm(list = ls())
 # load packages 
 library(tidyverse)
 library(gganimate)
+library(rpart)
+library(rattle)
+library(caret)
+library(randomForest)
+library(glmnet)
 
 # load data
 data <- read_rds("shiny/raw-data/data_final.rds")
 season <- read_rds("shiny/raw-data/data_season.rds")
 ```
 
-```{r avg_stats}
+```{r visualization}
 # group teams by year and threshold parameter
 finals <- season %>% 
   mutate(threshold = as.factor(ifelse(tour_games >= 6, 1, 0))) %>% 
@@ -62,4 +67,110 @@ finals %>%
   ggplot(aes(year, win_pct)) + 
   geom_line(aes(group = threshold, color = threshold)) +
   theme_classic()
+```
+
+```{r classification_tree}
+# assign predictors and outcome to formula variable
+formula <- formula('factor(win) ~ win_pct_rank + adjoe_rank + adjde_rank + barthag_rank + efg_o_rank + efg_d_rank + tor_rank + tord_rank + orb_rank + drb_rank + ftr_rank + ftrd_rank + twop_o_rank + twop_d_rank + threep_o_rank + threep_d_rank + adj_t_rank + wab_rank + win_pct_rank_opp + adjoe_rank_opp + adjde_rank_opp + barthag_rank_opp + efg_o_rank_opp + efg_d_rank_opp + tor_rank_opp + tord_rank_opp + orb_rank_opp + drb_rank_opp + ftr_rank_opp + ftrd_rank_opp + twop_o_rank_opp + twop_d_rank_opp + threep_o_rank_opp + threep_d_rank_opp + adj_t_rank_opp + wab_rank_opp')
+
+# generate classification tree
+tree_mod_class <- rpart(formula, data, control = rpart.control(cp = .063))
+#summary(tree_mod_class)
+#tree_mod_class
+fancyRpartPlot(tree_mod_class)
+
+# cross-validation for optimal tuning parameter
+mod <- train(formula, data, method = 'rpart', metric = 'Accuracy', trControl = trainControl(method = "repeatedcv", repeats = 10, number = 20), na.action = na.omit)
+fancyRpartPlot(mod$finalModel)
+```
+
+```{r random_forest}
+# generate random forest
+mod <- randomForest(formula, data = data, method = 'rf', ntree = 200, na.action = na.omit)
+mod
+plot(mod)
+importance(mod)
+
+# sample half the observations for testing
+data_rows <- sample(nrow(data), floor(nrow(data) * 0.5))
+data_train <- data[data_rows, ]
+data_test <- data[-data_rows, ]
+
+# test accuracy of predictions using subset of sample
+mod <- randomForest(formula, data = data_train, method = 'rf', ntree = 200, na.action = na.omit)
+preds <- predict(mod, data_test)
+
+# generate table of prediction accuracy
+my_tab <- table(factor(data_test$win > 0), preds, dnn = c('actual', 'predicted'))
+my_tab
+
+# 74% of observations accurately predicted
+sum(diag(my_tab))/sum(my_tab)
+# correctly classified 83% of winners ... but only 66% of losers
+prop.table(my_tab, 1)
+# of the teams we thought would win, 67% did. Of those we thought would be lose, 80% did
+prop.table(my_tab, 2) 
+```
+
+```{r regularized_regression}
+# assign all predictors to list
+metrics <- c('win_pct_rank', 'adjoe_rank', 'adjde_rank', 'barthag_rank', 'efg_o_rank', 'efg_d_rank', 'tor_rank', 'tord_rank', 'orb_rank', 'drb_rank', 'ftr_rank', 'ftrd_rank', 'twop_o_rank', 'twop_d_rank', 'threep_o_rank', 'threep_d_rank', 'adj_t_rank', 'wab_rank', 'win_pct_rank_opp', 'adjoe_rank_opp', 'adjde_rank_opp', 'barthag_rank_opp', 'efg_o_rank_opp', 'efg_d_rank_opp', 'tor_rank_opp', 'tord_rank_opp', 'orb_rank_opp', 'drb_rank_opp', 'ftr_rank_opp', 'ftrd_rank_opp', 'twop_o_rank_opp', 'twop_d_rank_opp', 'threep_o_rank_opp', 'threep_d_rank_opp', 'adj_t_rank_opp', 'wab_rank_opp')
+
+# simple LASSO
+model <- paste(c('~ -1', metrics), collapse = ' + ') %>% formula()
+model
+x <- model.matrix(model, data = data)
+my_mod <- glmnet(x, y = data$win, alpha = 1)
+plot(my_mod, xvar = 'dev', label = TRUE)
+plot(my_mod, xvar = 'lambda', label = TRUE) 
+coef(my_mod, s =exp(-3)) 
+
+# cross-validation for tuning parameter
+my_mod_cv <- cv.glmnet(x = x, y = data$win, alpha = 1, nfolds = 100)
+plot(my_mod_cv)
+
+# win percentage, power ranking, defensive efficiency, and wins above bubble most leveraged predictors
+## defense wins championships?
+my_mod_cv$lambda.min
+my_mod_cv$lambda.1se 
+coef(my_mod, s = my_mod_cv$lambda.min)
+coef(my_mod, s = my_mod_cv$lambda.1se)
+
+# adding interactions
+model <- paste0('~ -1 + (', paste(metrics, collapse = ' + '), ')^2') %>% formula()
+x <- model.matrix(model, data = data)
+my_mod_int <- glmnet(x, y = data$win, alpha = 1)
+plot(my_mod_int, xvar = 'dev', label = TRUE)
+plot(my_mod_int, xvar = 'lambda', label = TRUE)
+
+# cross validation for tuning parameter
+my_mod_int_cv <- cv.glmnet(x = x, y = data$win, alpha = 1, nfolds = 4)
+my_mod_int_cv
+plot(my_mod_int_cv)
+
+# power ranking, win percentage X power ranking, win percentage X defensive rebounding, offensive efficiency X defensive efficiency, defensive efficiency X free throw rate, defensive efficiency X tempo, power ranking X wins above bubble, free throw rate X defensive efficiency, two-point percentage X wins above bubble, tempo X defensive efficiency most leveraged predictors
+## interactions between metrics large determinant of matchup outcome
+## makes sense since basketball performance in contingent on relative matchups and adjustment to opponent
+my_mod_int_cv$lambda.min
+my_mod_int_cv$lambda.1se
+coef(my_mod_int, s = my_mod_int_cv$lambda.min)
+coef(my_mod_int, s = my_mod_int_cv$lambda.1se)
+
+# ridge regression
+model <- paste(c('~ -1', metrics), collapse = ' + ') %>% formula()
+x <- model.matrix(model, data = data)
+my_mod_ridge <- glmnet(x = x, y = data$win, alpha = 0)
+plot(my_mod_ridge, xvar = 'dev')
+plot(my_mod_ridge, xvar = 'lambda')
+coef(my_mod_ridge, s = exp(2))
+
+# cross-validation for tuning parameter
+my_mod_ridge_cv <- cv.glmnet(x = x, y = data$win, alpha = 0, nfolds = 100)
+plot(my_mod_ridge_cv)
+coef(my_mod_ridge_cv, s = my_mod_ridge_cv$lambda.min)
+min(my_mod_ridge_cv$cvm)
+min(my_mod_cv$cvm)
+
+# elastic net regression
+
 ```

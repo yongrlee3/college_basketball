@@ -402,18 +402,20 @@ tournament &lt;- tournament %&gt;%
     score_1 = ifelse(iteration == 2, opp_score, score_1)
   )
 
-# select tournmanet variables for join
+# select tournament variables for join
 tournament &lt;- tournament %&gt;%
-  select(year, round, reg_num = &quot;region number&quot;, reg_name = &quot;region name&quot;, seed:team, seed_opp = seed_1, team_opp = team_1, score_opp = score_1)
+  select(year, round, reg_num = &quot;region number&quot;, reg_name = &quot;region name&quot;, seed:team, seed_opp = seed_1, team_opp = team_1, score_opp = score_1) %&gt;% 
+  filter(year %in% 2015:2019)
 
 # unique column names
+# calculate win percentage
 season &lt;- season %&gt;%
-  select(team, conf, games = g, wins = w, everything())
+  mutate(win_pct = w / g * 100) %&gt;% 
+  select(team:conf, games = g, wins = w, win_pct, everything())
 
 # specify rounds qualified in season data
 # filter out teams that didn&#39;t qualify
 # filter out teams that did not qualify after First Four round
-# calculate win percentage
 season &lt;- season %&gt;%
   filter(!is.na(postseason), postseason != &quot;R68&quot;) %&gt;%
   mutate(
@@ -427,8 +429,7 @@ season &lt;- season %&gt;%
           )
         )
       )
-    ),
-    win_pct = wins / games * 100
+    )
   )
 
 # save file for visualizations
@@ -436,22 +437,29 @@ saveRDS(season, &quot;shiny/raw-data/data_season.rds&quot;)
 
 # convert team-level data to team-round data
 # duplicate observations to mirror rounds qualified
-# assign win and lose outcome values
 season &lt;- season %&gt;%
   uncount(tour_games, .remove = FALSE) %&gt;%
   mutate(
-    round = as.factor(unlist(c(sapply(season$tour_games, function(x) seq(1, x))))),
-    lose = ifelse(tour_games == round &amp; postseason != &quot;Champions&quot;, 1, 0),
-    win = 1 - lose
-  ) %&gt;%
+    round = as.factor(unlist(c(sapply(season$tour_games, function(x) seq(1, x)))))) %&gt;%
   select(-seed, -postseason, -tour_games)
 
 # join season and tournament datasets
 data &lt;- season %&gt;%
   left_join(tournament, by = c(&quot;year&quot; = &quot;year&quot;, &quot;round&quot; = &quot;round&quot;, &quot;team&quot; = &quot;team&quot;))
 
+# trim season dataset to contain only opponent data
+# join data dataset to season to include opponent statistics
+# reorder variables
+# assign game outcome value (1: win, 0: lose)
+season &lt;- season %&gt;% 
+  select(team:conf, win_pct:round)
+data &lt;- data %&gt;% 
+  left_join(season, by = c(&quot;year&quot; = &quot;year&quot;, &quot;round&quot; = &quot;round&quot;, &quot;team_opp&quot; = &quot;team&quot;), suffix = c(&quot;&quot;, &quot;_opp&quot;)) %&gt;% 
+  select(year:round, reg_name, reg_num, team:conf, seed:score, team_opp, conf_opp, seed_opp, score_opp, win_pct:wab_rank, win_pct_opp:wab_rank_opp) %&gt;% 
+  mutate(win = ifelse(score &gt; score_opp, 1, 0))
+
 # check for missing data
-# data %&gt;% filter(is.na(reg_num))
+#data %&gt;% filter(is.na(reg_num))
 
 # school naming conventions an issue
 # too many unique mismatches
