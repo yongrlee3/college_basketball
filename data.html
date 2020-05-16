@@ -369,28 +369,22 @@ summary {
 </div>
 
 
-<pre class="r"><code># lower case column names
-names(season) &lt;- tolower(names(season))
-names(tournament) &lt;- tolower(names(tournament))
-
-# convert round to factor for eventual join
-# create duplicate variable
-tournament &lt;- tournament %&gt;%
+<pre class="r"><code># convert round to factor for eventual join
+tournament_winner &lt;- tournament %&gt;%
   left_join(list, by = c(&quot;team&quot; = &quot;tournament&quot;)) %&gt;%
-  left_join(list, by = c(&quot;team_1&quot; = &quot;tournament&quot;)) %&gt;%
+  left_join(list, by = c(&quot;team_1&quot; = &quot;tournament&quot;)) %&gt;% 
   mutate(
     round = as.factor(round),
     duplicate = 2,
     team = season.x,
-    team_1 = season.y
-  )
+    team_1 = season.y)
 
 # duplicate tournament data
 # reassign team and opponent data
-tournament &lt;- tournament %&gt;%
+tournament_winner &lt;- tournament_winner %&gt;%
   uncount(duplicate, .remove = FALSE) %&gt;%
   mutate(
-    iteration = as.factor(unlist(c(sapply(tournament$duplicate, function(x) seq(1, x))))),
+    iteration = as.factor(unlist(c(sapply(tournament_winner$duplicate, function(x) seq(1, x))))),
     opp_seed = seed,
     opp_team = team,
     opp_score = score,
@@ -403,14 +397,14 @@ tournament &lt;- tournament %&gt;%
   )
 
 # select tournament variables for join
-tournament &lt;- tournament %&gt;%
+tournament_winner &lt;- tournament_winner %&gt;%
   select(year, round, reg_num = &quot;region number&quot;, reg_name = &quot;region name&quot;, seed:team, seed_opp = seed_1, team_opp = team_1, score_opp = score_1) %&gt;% 
   filter(year %in% 2015:2019)
 
 # specify rounds qualified in season data
 # filter out teams that didn&#39;t qualify
 # filter out teams that did not qualify after First Four round
-season &lt;- season %&gt;%
+season_winner &lt;- season %&gt;%
   filter(!is.na(postseason), postseason != &quot;R68&quot;) %&gt;%
   mutate(
     tour_games = ifelse(postseason == &quot;R64&quot;, 1,
@@ -427,28 +421,124 @@ season &lt;- season %&gt;%
   )
 
 # save file for visualizations
-saveRDS(season, &quot;shiny/raw-data/data_season.rds&quot;)
+saveRDS(season_winner, &quot;shiny/raw-data/season_winner.rds&quot;)
 
 # convert team-level data to team-round data
 # duplicate observations to mirror rounds qualified
-season &lt;- season %&gt;%
+season_winner &lt;- season_winner %&gt;%
   uncount(tour_games, .remove = FALSE) %&gt;%
   mutate(
-    round = as.factor(unlist(c(sapply(season$tour_games, function(x) seq(1, x)))))) %&gt;%
+    round = as.factor(unlist(c(sapply(season_winner$tour_games, function(x) seq(1, x)))))) %&gt;%
   select(-seed, -postseason, -tour_games)
 
 # join season and tournament datasets
-data &lt;- season %&gt;%
-  left_join(tournament, by = c(&quot;year&quot; = &quot;year&quot;, &quot;round&quot; = &quot;round&quot;, &quot;team&quot; = &quot;team&quot;))
+data_winner &lt;- season_winner %&gt;%
+  left_join(tournament_winner, by = c(&quot;year&quot; = &quot;year&quot;, &quot;round&quot; = &quot;round&quot;, &quot;team&quot; = &quot;team&quot;))
 
 # trim season dataset to contain only opponent data
 # join data dataset to season to include opponent statistics
 # reorder variables
 # assign game outcome value (1: win, 0: lose)
-season &lt;- season %&gt;% 
+season_winner &lt;- season_winner %&gt;% 
   select(team:year, round, win_pct:wab_rank)
-data &lt;- data %&gt;% 
-  left_join(season, by = c(&quot;year&quot; = &quot;year&quot;, &quot;round&quot; = &quot;round&quot;, &quot;team_opp&quot; = &quot;team&quot;), suffix = c(&quot;&quot;, &quot;_opp&quot;)) %&gt;% 
+data_winner &lt;- data_winner %&gt;% 
+  left_join(season_winner, by = c(&quot;year&quot; = &quot;year&quot;, &quot;round&quot; = &quot;round&quot;, &quot;team_opp&quot; = &quot;team&quot;), suffix = c(&quot;&quot;, &quot;_opp&quot;)) %&gt;%
+  select(year, round, reg_name, reg_num, team:conf, seed:score, team_opp, conf_opp, seed_opp, score_opp, win_pct:wab_rank, win_pct_opp:wab_rank_opp) %&gt;% 
+  mutate(win = ifelse(score &gt; score_opp, 1, 0)) %&gt;% 
+  filter(win == 1)
+
+# check for missing data
+#data %&gt;% filter(is.na(reg_num))
+
+# school naming conventions an issue
+# too many unique mismatches
+# created index list in MS Excel
+# imported list, joined list to tournament dataset
+# joined to season dataset using newly aligned names
+# 63 games duplicated for each side for 5 years: 630 total
+# check is good
+
+# save final dataset
+saveRDS(data_winner, &quot;shiny/raw-data/data_winner.rds&quot;)</code></pre>
+<pre class="r"><code># convert round to factor for eventual join
+# create duplicate variable
+tournament_all &lt;- tournament %&gt;%
+  left_join(list, by = c(&quot;team&quot; = &quot;tournament&quot;)) %&gt;%
+  left_join(list, by = c(&quot;team_1&quot; = &quot;tournament&quot;)) %&gt;%
+  mutate(
+    round = as.factor(round),
+    duplicate = 2,
+    team = season.x,
+    team_1 = season.y
+  )
+
+# duplicate tournament data
+# reassign team and opponent data
+tournament_all &lt;- tournament_all %&gt;%
+  uncount(duplicate, .remove = FALSE) %&gt;%
+  mutate(
+    iteration = as.factor(unlist(c(sapply(tournament_all$duplicate, function(x) seq(1, x))))),
+    opp_seed = seed,
+    opp_team = team,
+    opp_score = score,
+    seed = ifelse(iteration == 2, seed_1, seed),
+    team = ifelse(iteration == 2, team_1, team),
+    score = ifelse(iteration == 2, score_1, score),
+    seed_1 = ifelse(iteration == 2, opp_seed, seed_1),
+    team_1 = ifelse(iteration == 2, opp_team, team_1),
+    score_1 = ifelse(iteration == 2, opp_score, score_1)
+  )
+
+# save dataset
+saveRDS(tournament_all, &quot;shiny/raw-data/tournament_all.rds&quot;)
+
+# select tournament variables for join
+tournament_all &lt;- tournament_all %&gt;%
+  select(year, round, reg_num = &quot;region number&quot;, reg_name = &quot;region name&quot;, seed:team, seed_opp = seed_1, team_opp = team_1, score_opp = score_1) %&gt;% 
+  filter(year %in% 2015:2019)
+
+# specify rounds qualified in season data
+# filter out teams that didn&#39;t qualify
+# filter out teams that did not qualify after First Four round
+season_all &lt;- season %&gt;%
+  filter(!is.na(postseason), postseason != &quot;R68&quot;) %&gt;%
+  mutate(
+    tour_games = ifelse(postseason == &quot;R64&quot;, 1,
+      ifelse(postseason == &quot;R32&quot;, 2,
+        ifelse(postseason == &quot;S16&quot;, 3,
+          ifelse(postseason == &quot;E8&quot;, 4,
+            ifelse(postseason == &quot;F4&quot;, 5,
+              ifelse(postseason == &quot;2ND&quot;, 6, 6)
+            )
+          )
+        )
+      )
+    )
+  )
+
+# save file for visualizations
+saveRDS(season_all, &quot;shiny/raw-data/season_all.rds&quot;)
+
+# convert team-level data to team-round data
+# duplicate observations to mirror rounds qualified
+season_all &lt;- season_all %&gt;%
+  uncount(tour_games, .remove = FALSE) %&gt;%
+  mutate(
+    round = as.factor(unlist(c(sapply(season_all$tour_games, function(x) seq(1, x)))))) %&gt;%
+  select(-seed, -postseason, -tour_games)
+
+# join season and tournament datasets
+data_all &lt;- season_all %&gt;%
+  left_join(tournament_all, by = c(&quot;year&quot; = &quot;year&quot;, &quot;round&quot; = &quot;round&quot;, &quot;team&quot; = &quot;team&quot;))
+
+# trim season dataset to contain only opponent data
+# join data dataset to season to include opponent statistics
+# reorder variables
+# assign game outcome value (1: win, 0: lose)
+season_all &lt;- season_all %&gt;% 
+  select(team:year, round, win_pct:wab_rank)
+data_all &lt;- data_all %&gt;% 
+  left_join(season_all, by = c(&quot;year&quot; = &quot;year&quot;, &quot;round&quot; = &quot;round&quot;, &quot;team_opp&quot; = &quot;team&quot;), suffix = c(&quot;&quot;, &quot;_opp&quot;)) %&gt;% 
   select(year, round, reg_name, reg_num, team:conf, seed:score, team_opp, conf_opp, seed_opp, score_opp, win_pct:wab_rank, win_pct_opp:wab_rank_opp) %&gt;% 
   mutate(win = ifelse(score &gt; score_opp, 1, 0))
 
@@ -464,7 +554,33 @@ data &lt;- data %&gt;%
 # check is good
 
 # save final dataset
-saveRDS(data, &quot;shiny/raw-data/data_final.rds&quot;)</code></pre>
+saveRDS(data_all, &quot;shiny/raw-data/data_all.rds&quot;)</code></pre>
+<pre class="r"><code># load data
+season_matchups &lt;- read_csv(&quot;raw-data/season_matchups.csv&quot;, col_types = cols())
+
+# lower case column names
+names(season_matchups) &lt;- tolower(names(season_matchups))
+
+# duplicate observations for each possible tounament matchup
+season_test &lt;- season_matchups %&gt;%
+  uncount(duplicate, .remove = FALSE) %&gt;%
+  mutate(
+    matchup = unlist(c(sapply(season_matchups$duplicate, function(x) seq(1, x))))) %&gt;% 
+  select(-conf, -postseason, -seed, -g, -w, -duplicate)
+
+write.csv(season_test, &quot;raw-data/season_test_raw.csv&quot;)
+
+# manually updated data in excel
+# save new files called season_test
+
+# load data
+season_test &lt;- read_csv(&quot;raw-data/season_test.csv&quot;, col_types = cols()) %&gt;% 
+  mutate(flag = ifelse(team == team_opp, 1, 0)) %&gt;% 
+  filter(flag != 1) %&gt;% 
+  select(number, team, team_opp, year, everything(), -matchup, -flag)
+
+# save data
+saveRDS(season_test, &quot;shiny/raw-data/season_test.rds&quot;)</code></pre>
 
 
 

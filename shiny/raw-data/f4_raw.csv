@@ -1,0 +1,21 @@
+"","year","reg_num","reg_name","team","seed","forest"
+"1",2015,3,"East","Villanova","1",60
+"2",2015,1,"Midwest","Kentucky","1",59
+"3",2015,4,"South","Duke","1",63
+"4",2015,2,"West","Wisconsin","1",61
+"5",2016,3,"East","North Carolina","1",61
+"6",2016,4,"Midwest","Virginia","1",59
+"7",2016,1,"South","Villanova","2",63
+"8",2016,2,"West","Oklahoma","2",59
+"9",2017,1,"East","Villanova","1",61
+"10",2017,3,"Midwest","Oregon","3",58
+"11",2017,4,"South","North Carolina","1",63
+"12",2017,2,"West","Gonzaga","1",60
+"13",2018,3,"East","Villanova","1",63
+"14",2018,4,"Midwest","Kansas","1",60
+"15",2018,1,"South","Loyola Chicago","11",55
+"16",2018,2,"West","Gonzaga","4",59
+"17",2019,1,"East","Michigan St.","2",61
+"18",2019,4,"Midwest","Kentucky","2",57
+"19",2019,3,"South","Virginia","1",63
+"20",2019,2,"West","Texas Tech","3",61

@@ -1,0 +1,41 @@
+year,reg_num,reg_name,team,seed,forest,seed_opp
+2015,3,East,Michigan St.,7,53,1
+2015,3,East,Villanova,1,60,7
+2015,1,Midwest,Kentucky,1,59,3
+2015,1,Midwest,Notre Dame,3,57,1
+2015,4,South,Duke,1,63,2
+2015,4,South,Gonzaga,2,59,1
+2015,2,West,Arizona,2,59,1
+2015,2,West,Wisconsin,1,61,2
+2016,3,East,North Carolina,1,61,2
+2016,3,East,Xavier,2,47,1
+2016,4,Midwest,Gonzaga,11,57,1
+2016,4,Midwest,Virginia,1,59,11
+2016,1,South,Kansas,1,60,2
+2016,1,South,Villanova,2,63,1
+2016,2,West,Oklahoma,2,59,1
+2016,2,West,Oregon,1,52,2
+2017,1,East,South Carolina,7,54,1
+2017,1,East,Villanova,1,61,7
+2017,3,Midwest,Kansas,1,55,3
+2017,3,Midwest,Oregon,3,58,1
+2017,4,South,Kentucky,2,60,1
+2017,4,South,North Carolina,1,63,2
+2017,2,West,Gonzaga,1,60,7
+2017,2,West,Saint Mary's,7,55,1
+2018,3,East,Purdue,2,58,1
+2018,3,East,Villanova,1,63,2
+2018,4,Midwest,Duke,2,59,1
+2018,4,Midwest,Kansas,1,60,2
+2018,1,South,Loyola Chicago,11,55,1
+2018,1,South,Virginia,1,52,11
+2018,2,West,Gonzaga,4,59,7
+2018,2,West,Texas A&M,7,45,4
+2019,1,East,Duke,1,59,2
+2019,1,East,Michigan St.,2,61,1
+2019,4,Midwest,Auburn,5,56,2
+2019,4,Midwest,Kentucky,2,57,5
+2019,3,South,Purdue,3,57,1
+2019,3,South,Virginia,1,63,3
+2019,2,West,Gonzaga,1,61,3
+2019,2,West,Texas Tech,3,61,1

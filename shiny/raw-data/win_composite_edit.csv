@@ -1,0 +1,321 @@
+year,team,forest,lasso,ridge,net
+2015,Albany,8,5,5,5
+2015,Arizona,59,57,57,57
+2015,Arkansas,38,40,40,40
+2015,Baylor,43,56,56,56
+2015,Belmont,8,10,10,10
+2015,Buffalo,18,14,14,14
+2015,Butler,40,38,38,38
+2015,Cincinnati,44,43,43,43
+2015,Coastal Carolina,8,1,1,1
+2015,Davidson,26,37,37,37
+2015,Dayton,27,22,22,22
+2015,Duke,63,62,62,62
+2015,Eastern Washington,14,13,13,13
+2015,Georgetown,41,35,35,35
+2015,Georgia,27,20,20,20
+2015,Georgia St.,31,26,26,26
+2015,Gonzaga,59,51,51,51
+2015,Hampton,3,0,0,0
+2015,Harvard,17,11,11,11
+2015,Indiana,15,27,27,27
+2015,Iowa,42,45,45,45
+2015,Iowa St.,37,41,41,41
+2015,Kansas,46,53,53,53
+2015,Kentucky,59,63,63,63
+2015,Lafayette,10,15,15,15
+2015,Louisville,53,48,48,48
+2015,LSU,31,42,42,42
+2015,Maryland,36,31,31,31
+2015,Michigan St.,53,47,47,47
+2015,Mississippi,18,17,17,17
+2015,New Mexico St.,14,9,9,9
+2015,North Carolina,52,60,60,60
+2015,North Carolina St.,38,23,23,23
+2015,North Dakota St.,9,2,2,2
+2015,Northeastern,7,6,6,6
+2015,Northern Iowa,55,46,46,46
+2015,Notre Dame,57,49,49,49
+2015,Ohio St.,46,55,55,55
+2015,Oklahoma,48,54,54,54
+2015,Oklahoma St.,18,25,25,25
+2015,Oregon,30,34,34,34
+2015,Providence,32,28,28,28
+2015,Purdue,28,24,24,24
+2015,Robert Morris,6,4,4,4
+2015,San Diego St.,46,44,44,44
+2015,SMU,26,29,29,29
+2015,St. John's,24,33,33,33
+2015,Stephen F. Austin,19,21,21,21
+2015,Texas,29,36,36,36
+2015,Texas Southern,3,3,3,3
+2015,UAB,12,8,8,8
+2015,UC Irvine,18,12,12,12
+2015,UCLA,30,19,19,19
+2015,Utah,53,50,50,50
+2015,Valparaiso,20,18,18,18
+2015,VCU,28,30,30,30
+2015,Villanova,60,61,61,61
+2015,Virginia,51,59,59,59
+2015,West Virginia,44,39,39,39
+2015,Wichita St.,57,52,52,52
+2015,Wisconsin,61,58,58,58
+2015,Wofford,14,16,16,16
+2015,Wyoming,13,7,7,7
+2015,Xavier,38,32,32,32
+2016,Arizona,39,30,30,30
+2016,Arkansas Little Rock,34,33,33,33
+2016,Austin Peay,4,1,1,1
+2016,Baylor,20,25,25,25
+2016,Buffalo,4,2,2,2
+2016,Butler,27,23,23,23
+2016,Cal St. Bakersfield,24,16,16,16
+2016,California,37,35,35,35
+2016,Chattanooga,11,12,12,12
+2016,Cincinnati,39,42,42,42
+2016,Colorado,18,15,15,15
+2016,Connecticut,38,48,48,48
+2016,Dayton,27,29,29,29
+2016,Duke,42,38,38,38
+2016,Florida Gulf Coast,6,3,3,3
+2016,Fresno St.,14,10,10,10
+2016,Gonzaga,57,54,54,54
+2016,Green Bay,8,6,6,6
+2016,Hampton,4,0,0,0
+2016,Hawaii,37,26,26,26
+2016,Holy Cross,3,4,4,4
+2016,Indiana,50,47,47,47
+2016,Iona,13,11,11,11
+2016,Iowa,39,43,43,43
+2016,Iowa St.,41,45,45,45
+2016,Kansas,60,61,61,61
+2016,Kentucky,54,59,59,59
+2016,Maryland,46,40,40,40
+2016,Miami FL,50,49,49,49
+2016,Michigan,20,19,19,19
+2016,Michigan St.,51,50,50,50
+2016,Middle Tennessee,14,8,8,8
+2016,North Carolina,61,60,60,60
+2016,Northern Iowa,27,24,24,24
+2016,Notre Dame,43,28,28,28
+2016,Oklahoma,59,58,58,58
+2016,Oregon,52,53,53,53
+2016,Oregon St.,21,20,20,20
+2016,Pittsburgh,25,27,27,27
+2016,Providence,32,36,36,36
+2016,Purdue,52,51,51,51
+2016,Saint Joseph's,37,31,31,31
+2016,Seton Hall,42,52,52,52
+2016,South Dakota St.,17,9,9,9
+2016,Stephen F. Austin,37,44,44,44
+2016,Stony Brook,15,13,13,13
+2016,Syracuse,55,55,55,55
+2016,Temple,15,17,17,17
+2016,Texas,25,37,37,37
+2016,Texas A&M,54,57,57,57
+2016,Texas Tech,16,18,18,18
+2016,UNC Asheville,11,7,7,7
+2016,UNC Wilmington,19,14,14,14
+2016,USC,23,21,21,21
+2016,Utah,39,34,34,34
+2016,VCU,37,41,41,41
+2016,Villanova,63,63,63,63
+2016,Virginia,59,62,62,62
+2016,Weber St.,10,5,5,5
+2016,West Virginia,37,56,56,56
+2016,Wichita St.,43,39,39,39
+2016,Wisconsin,34,32,32,32
+2016,Xavier,47,46,46,46
+2016,Yale,26,22,22,22
+2017,Arizona,46,39,39,39
+2017,Arkansas,27,21,21,21
+2017,Baylor,44,50,50,50
+2017,Bucknell,16,12,12,12
+2017,Butler,37,36,36,36
+2017,Cincinnati,49,58,58,58
+2017,Creighton,38,46,46,46
+2017,Dayton,24,18,18,18
+2017,Duke,50,51,51,51
+2017,East Tennessee St.,16,11,11,11
+2017,Florida,54,54,54,54
+2017,Florida Gulf Coast,12,16,16,16
+2017,Florida St.,37,38,38,38
+2017,Gonzaga,60,61,61,61
+2017,Iona,10,9,9,9
+2017,Iowa St.,41,49,49,49
+2017,Jacksonville St.,6,0,0,0
+2017,Kansas,55,55,55,55
+2017,Kansas St.,28,35,35,35
+2017,Kent St.,7,6,6,6
+2017,Kentucky,60,60,60,60
+2017,Louisville,49,52,52,52
+2017,Marquette,16,29,29,29
+2017,Maryland,26,27,27,27
+2017,Miami FL,30,37,37,37
+2017,Michigan,47,53,53,53
+2017,Michigan St.,32,23,23,23
+2017,Middle Tennessee,34,28,28,28
+2017,Minnesota,32,32,32,32
+2017,Mount St. Mary's,10,10,10,10
+2017,Nevada,19,13,13,13
+2017,New Mexico St.,16,14,14,14
+2017,North Carolina,63,59,59,59
+2017,North Dakota,9,7,7,7
+2017,Northern Kentucky,9,5,5,5
+2017,Northwestern,33,34,34,34
+2017,Notre Dame,39,47,47,47
+2017,Oklahoma St.,18,30,30,30
+2017,Oregon,58,62,62,62
+2017,Princeton,20,24,24,24
+2017,Purdue,50,45,45,45
+2017,Rhode Island,42,33,33,33
+2017,Saint Mary's,55,56,56,56
+2017,Seton Hall,18,15,15,15
+2017,SMU,51,48,48,48
+2017,South Carolina,54,40,40,40
+2017,South Dakota St.,1,2,2,2
+2017,Texas Southern,10,1,1,1
+2017,Troy,10,4,4,4
+2017,UC Davis,10,3,3,3
+2017,UCLA,52,42,42,42
+2017,UNC Wilmington,26,26,26,26
+2017,USC,34,20,20,20
+2017,Vanderbilt,27,31,31,31
+2017,VCU,21,17,17,17
+2017,Vermont,23,22,22,22
+2017,Villanova,61,63,63,63
+2017,Virginia,34,44,44,44
+2017,Virginia Tech,16,25,25,25
+2017,West Virginia,50,57,57,57
+2017,Wichita St.,48,41,41,41
+2017,Winthrop,12,8,8,8
+2017,Wisconsin,47,43,43,43
+2017,Xavier,37,19,19,19
+2018,Alabama,32,24,24,24
+2018,Arizona,27,27,27,27
+2018,Arkansas,20,28,28,28
+2018,Auburn,30,23,23,23
+2018,Bucknell,10,4,4,4
+2018,Buffalo,30,17,17,17
+2018,Butler,40,46,46,46
+2018,Cal St. Fullerton,5,0,0,0
+2018,Cincinnati,54,56,56,56
+2018,Clemson,48,47,47,47
+2018,College of Charleston,7,5,5,5
+2018,Creighton,32,37,37,37
+2018,Davidson,13,20,20,20
+2018,Duke,59,62,62,62
+2018,Florida,41,52,52,52
+2018,Florida St.,44,29,29,29
+2018,Georgia St.,17,13,13,13
+2018,Gonzaga,59,51,51,51
+2018,Houston,51,48,48,48
+2018,Iona,6,6,6,6
+2018,Kansas,60,61,61,61
+2018,Kansas St.,47,54,54,54
+2018,Kentucky,42,45,45,45
+2018,Lipscomb,6,3,3,3
+2018,Loyola Chicago,55,44,44,44
+2018,Marshall,15,11,11,11
+2018,Miami FL,36,42,42,42
+2018,Michigan,58,59,59,59
+2018,Michigan St.,52,57,57,57
+2018,Missouri,24,19,19,19
+2018,Montana,11,10,10,10
+2018,Murray St.,24,15,15,15
+2018,Nevada,45,31,31,31
+2018,New Mexico St.,33,34,34,34
+2018,North Carolina,38,40,40,40
+2018,North Carolina St.,18,26,26,26
+2018,Ohio St.,52,53,53,53
+2018,Oklahoma,14,22,22,22
+2018,Penn,16,9,9,9
+2018,Providence,18,21,21,21
+2018,Purdue,58,55,55,55
+2018,Radford,6,2,2,2
+2018,Rhode Island,29,32,32,32
+2018,San Diego St.,42,35,35,35
+2018,Seton Hall,32,36,36,36
+2018,South Dakota St.,21,16,16,16
+2018,St. Bonaventure,18,14,14,14
+2018,Stephen F. Austin,17,18,18,18
+2018,Syracuse,48,38,38,38
+2018,TCU,21,25,25,25
+2018,Tennessee,51,58,58,58
+2018,Texas,37,43,43,43
+2018,Texas A&M,45,41,41,41
+2018,Texas Southern,6,1,1,1
+2018,Texas Tech,55,50,50,50
+2018,UMBC,9,8,8,8
+2018,UNC Greensboro,21,33,33,33
+2018,Villanova,63,63,63,63
+2018,Virginia,52,60,60,60
+2018,Virginia Tech,26,30,30,30
+2018,West Virginia,49,49,49,49
+2018,Wichita St.,16,12,12,12
+2018,Wright St.,15,7,7,7
+2018,Xavier,36,39,39,39
+2019,Abilene Christian,12,12,12,12
+2019,Arizona St.,16,10,10,10
+2019,Auburn,56,58,58,58
+2019,Baylor,25,23,23,23
+2019,Belmont,29,25,25,25
+2019,Bradley,6,0,0,0
+2019,Buffalo,48,48,48,48
+2019,Cincinnati,39,37,37,37
+2019,Colgate,12,14,14,14
+2019,Duke,59,62,62,62
+2019,Fairleigh Dickinson,2,3,3,3
+2019,Florida,43,49,49,49
+2019,Florida St.,46,41,41,41
+2019,Gardner Webb,12,6,6,6
+2019,Georgia St.,8,13,13,13
+2019,Gonzaga,61,60,60,60
+2019,Houston,55,55,55,55
+2019,Iona,4,1,1,1
+2019,Iowa,26,22,22,22
+2019,Iowa St.,34,43,43,43
+2019,Kansas,44,47,47,47
+2019,Kansas St.,41,50,50,50
+2019,Kentucky,57,52,52,52
+2019,Liberty,32,26,26,26
+2019,Louisville,34,34,34,34
+2019,LSU,48,44,44,44
+2019,Marquette,19,21,21,21
+2019,Maryland,33,29,29,29
+2019,Michigan,53,59,59,59
+2019,Michigan St.,61,57,57,57
+2019,Minnesota,33,19,19,19
+2019,Mississippi,22,27,27,27
+2019,Mississippi St.,29,38,38,38
+2019,Montana,9,4,4,4
+2019,Murray St.,35,31,31,31
+2019,Nevada,35,28,28,28
+2019,New Mexico St.,24,24,24,24
+2019,North Carolina,54,53,53,53
+2019,North Dakota St.,4,2,2,2
+2019,Northeastern,6,7,7,7
+2019,Northern Kentucky,14,9,9,9
+2019,Ohio St.,24,20,20,20
+2019,Oklahoma,36,35,35,35
+2019,Old Dominion,20,16,16,16
+2019,Oregon,45,42,42,42
+2019,Purdue,57,51,51,51
+2019,Saint Louis,12,5,5,5
+2019,Saint Mary's,32,33,33,33
+2019,Seton Hall,16,15,15,15
+2019,Syracuse,26,32,32,32
+2019,Tennessee,56,54,54,54
+2019,Texas Tech,61,61,61,61
+2019,UC Irvine,24,18,18,18
+2019,UCF,46,39,39,39
+2019,Utah St.,23,17,17,17
+2019,VCU,37,40,40,40
+2019,Vermont,11,8,8,8
+2019,Villanova,32,30,30,30
+2019,Virginia,63,63,63,63
+2019,Virginia Tech,54,56,56,56
+2019,Washington,28,36,36,36
+2019,Wisconsin,33,45,45,45
+2019,Wofford,34,46,46,46
+2019,Yale,16,11,11,11

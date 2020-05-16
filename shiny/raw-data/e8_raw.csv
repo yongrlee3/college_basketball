@@ -1,0 +1,41 @@
+"","year","reg_num","reg_name","team","seed","forest"
+"1",2015,3,"East","Michigan St.","7",53
+"2",2015,3,"East","Villanova","1",60
+"3",2015,1,"Midwest","Kentucky","1",59
+"4",2015,1,"Midwest","Notre Dame","3",57
+"5",2015,4,"South","Duke","1",63
+"6",2015,4,"South","Gonzaga","2",59
+"7",2015,2,"West","Arizona","2",59
+"8",2015,2,"West","Wisconsin","1",61
+"9",2016,3,"East","North Carolina","1",61
+"10",2016,3,"East","Xavier","2",47
+"11",2016,4,"Midwest","Gonzaga","11",57
+"12",2016,4,"Midwest","Virginia","1",59
+"13",2016,1,"South","Kansas","1",60
+"14",2016,1,"South","Villanova","2",63
+"15",2016,2,"West","Oklahoma","2",59
+"16",2016,2,"West","Oregon","1",52
+"17",2017,1,"East","South Carolina","7",54
+"18",2017,1,"East","Villanova","1",61
+"19",2017,3,"Midwest","Kansas","1",55
+"20",2017,3,"Midwest","Oregon","3",58
+"21",2017,4,"South","Kentucky","2",60
+"22",2017,4,"South","North Carolina","1",63
+"23",2017,2,"West","Gonzaga","1",60
+"24",2017,2,"West","Saint Mary's","7",55
+"25",2018,3,"East","Purdue","2",58
+"26",2018,3,"East","Villanova","1",63
+"27",2018,4,"Midwest","Duke","2",59
+"28",2018,4,"Midwest","Kansas","1",60
+"29",2018,1,"South","Loyola Chicago","11",55
+"30",2018,1,"South","Virginia","1",52
+"31",2018,2,"West","Gonzaga","4",59
+"32",2018,2,"West","Texas A&M","7",45
+"33",2019,1,"East","Duke","1",59
+"34",2019,1,"East","Michigan St.","2",61
+"35",2019,4,"Midwest","Auburn","5",56
+"36",2019,4,"Midwest","Kentucky","2",57
+"37",2019,3,"South","Purdue","3",57
+"38",2019,3,"South","Virginia","1",63
+"39",2019,2,"West","Gonzaga","1",61
+"40",2019,2,"West","Texas Tech","3",61

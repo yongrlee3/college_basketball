@@ -1,0 +1,370 @@
+---
+title: "visualization"
+author: "Yong Lee"
+date: "5/15/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# clear
+rm(list = ls())
+
+# load packages 
+library(tidyverse)
+library(gganimate)
+library(rpart)
+library(rattle)
+library(caret)
+library(randomForest)
+library(glmnet)
+library(gt)
+library(ggthemes)
+
+# load data
+data <- read_rds("shiny/raw-data/data_all.rds")
+season_test <- read_rds("shiny/raw-data/season_test.rds")
+tournament_all <- read_rds("shiny/raw-data/tournament_all.rds")
+season_all <- read_rds("shiny/raw-data/season_all.rds")
+```
+
+```{r win probability}
+# assign predictors and outcome to formula variable
+formula <- formula('factor(win) ~ win_pct_rank + adjoe_rank + adjde_rank + efg_o_rank + efg_d_rank + tor_rank + tord_rank + orb_rank + drb_rank + ftr_rank + ftrd_rank + twop_o_rank + twop_d_rank + threep_o_rank + threep_d_rank + adj_t_rank + win_pct_rank_opp + adjoe_rank_opp + adjde_rank_opp + efg_o_rank_opp + efg_d_rank_opp + tor_rank_opp + tord_rank_opp + orb_rank_opp + drb_rank_opp + ftr_rank_opp + ftrd_rank_opp + twop_o_rank_opp + twop_d_rank_opp + threep_o_rank_opp + threep_d_rank_opp + adj_t_rank_opp')
+
+# assign all predictors to list
+metrics <- c('win_pct_rank', 'adjoe_rank', 'adjde_rank', 'efg_o_rank', 'efg_d_rank', 'tor_rank', 'tord_rank', 'orb_rank', 'drb_rank', 'ftr_rank', 'ftrd_rank', 'twop_o_rank', 'twop_d_rank', 'threep_o_rank', 'threep_d_rank', 'adj_t_rank', 'win_pct_rank_opp', 'adjoe_rank_opp', 'adjde_rank_opp', 'efg_o_rank_opp', 'efg_d_rank_opp', 'tor_rank_opp', 'tord_rank_opp', 'orb_rank_opp', 'drb_rank_opp', 'ftr_rank_opp', 'ftrd_rank_opp', 'twop_o_rank_opp', 'twop_d_rank_opp', 'threep_o_rank_opp', 'threep_d_rank_opp', 'adj_t_rank_opp')
+
+# specify training data 
+model <- paste0('~ ', paste(metrics, collapse = ' + ')) %>% formula()
+x <- model.matrix(model, data = data)
+test <- model.matrix(model, data = season_test)
+
+# fit the four candidate models
+random_forest <- randomForest(formula, data = data, method = 'rf', ntree = 200, na.action = na.omit)
+lasso_cv <- cv.glmnet(x = x, y = data$win, nfold = 100, alpha = 1)
+ridge_cv <- cv.glmnet(x = x, y = data$win, nfold = 100, alpha = 0)
+net_cv <- cv.glmnet(x = x, y = data$win, nfold = 100, alpha = .5)
+
+# generate predictions
+season_test$forest <- predict(random_forest, season_test)
+season_test$forest <- as.numeric(season_test$forest) -1
+season_test$lasso <- predict(lasso_cv, test, s = 'lambda.min')
+season_test$lasso <- round(season_test$lasso, 0)
+season_test$ridge <- predict(lasso_cv, test, s = 'lambda.min')
+season_test$ridge <- round(season_test$ridge, 0)
+season_test$net <- predict(lasso_cv, test, s = 'lambda.min')
+season_test$net <- round(season_test$net, 0)
+
+# calculate win probability of all 63 matchups
+win_composite <- season_test %>% 
+  group_by(year, team) %>% 
+  summarize(forest = sum(forest),
+            lasso = sum(lasso),
+            ridge = sum(ridge),
+            net = sum(net))
+
+# save win_composite dataset
+write.csv(win_composite, "shiny/raw-data/win_composite.csv")
+```
+
+```{r rankings}
+# load edited win_composite dataset
+# no changes made, simply reloading and saving
+win_composite <- read_csv("shiny/raw-data/win_composite_edit.csv", col_types = cols())
+saveRDS(win_composite, "shiny/raw-data/win_composite.rds")
+
+# create table of composite win totals by year
+win_composite %>% 
+  left_join(season_all, by = c("team", "year")) %>% 
+  mutate(postseason = factor(postseason, levels = c("R64", "R32", "S16", "E8", "F4", "2ND", "Champions"), labels = c("Round of 64", "Round of 32", "Sweet 16", "Elite 8", "Final 4", "Runner-Up", "Champion"))) %>% 
+  filter(year == 2015) %>% 
+  arrange(desc(forest)) %>% 
+  select(Team = team, "Random Forest" = forest, "LASSO" = lasso, "Ridge" = ridge, "Elastic Net" = net, "Postseason Outcome" = postseason, "Seed" = seed) %>%
+  gt()
+```
+
+```{r r64}
+# acutal outcomes 
+bracket <- win_composite %>% 
+  left_join(tournament_all, by = c("year", "team")) %>% 
+  select(year:round, reg_num = "region number", reg_name = "region name", seed:score, team_opp = team_1, seed_opp = seed_1, score_opp = score_1) %>% 
+  left_join(win_composite, by = c("year", "team_opp" = "team"), suffix = c("", "_opp")) %>% 
+  select(year, round:reg_name, team, seed, score, team_opp, score_opp, forest:net, forest_opp:net_opp) %>% 
+  mutate(tie = as.factor(ifelse(forest == forest_opp, 1, 0)),
+         win_pred = as.factor(ifelse(forest > forest_opp, 1, 0)),
+         win_actual = as.factor(ifelse(score > score_opp, 1, 0)),
+         seed = factor(seed, levels = c(1,16,8,9,5,12,4,13,6,11,3,14,7,10,2,15)))
+
+# save and reload data
+write.csv(bracket, "shiny/raw-data/bracket_raw.csv")
+bracket <- read_csv("shiny/raw-data/bracket.csv", col_types = cols())
+
+# predicted outcomes
+bracket <- bracket %>% 
+  mutate(win_pred = as.factor(win_pred),
+         win_actual = as.factor(win_actual),
+         seed = factor(seed, levels = c(1,16,8,9,5,12,4,13,6,11,3,14,7,10,2,15)))
+
+# save data for shiny
+saveRDS(bracket, "shiny/raw-data/bracket.rds")
+
+# predicted outcomes
+bracket %>% 
+  filter(year == 2015, reg_name == "East", round == 1) %>% 
+  ggplot(aes(seed, forest)) +
+  geom_col(aes(fill = win_actual)) +
+  scale_fill_manual(name = "Outcome", labels = c("Loss", "Win"), values = c("coral1", "chartreuse1")) +
+  labs(x = "Seed", y = "Projected Wins") +
+  theme(axis.text.x = element_text(angle = 90)) +
+  theme_fivethirtyeight() +
+  geom_text(aes(label = team), size = 2) +
+  coord_flip()
+```
+
+```{r r32}
+# actual outcomes
+bracket %>% 
+  filter(year == 2015, reg_name == "East", round == 2) %>% 
+  ggplot(aes(seed, forest)) +
+  geom_col(aes(fill = win_actual)) +
+  scale_fill_manual(name = "Outcome", labels = c("Loss", "Win"), values = c("coral1", "chartreuse1")) +
+  labs(x = "Seed", y = "Projected Wins") +
+  theme(axis.text.x = element_text(angle = 90)) +
+  theme_fivethirtyeight() +
+  geom_text(aes(label = team), size = 3, hjust = 2) +
+  coord_flip()
+
+# filter winners of round of 64
+r32 <- bracket %>% 
+  filter(round == 1, win_pred == 1) %>% 
+  select(year:seed, forest)
+
+# save and reload data
+write.csv(r32, "shiny/raw-data/r32_raw.csv")
+r32 <- read_csv("shiny/raw-data/r32.csv", col_types = cols())
+
+# predcited outcomes
+r32 <- r32 %>% 
+  left_join(r32, by = c("seed_opp" = "seed", "reg_num", "reg_name", "year", "round"), suffix = c("", "_opp")) %>% 
+  select(year, reg_num:forest, team_opp, seed_opp, forest_opp) %>% 
+  mutate(win_pred = as.factor(ifelse(forest > forest_opp, 1, 0)),
+         seed = factor(seed, levels = c(1,16,8,9,5,12,4,13,6,11,3,14,7,10,2,15)))
+
+# override win composite tie with simulation data
+r32[96,10] <- 1
+
+# save data for shiny
+saveRDS(r32, "shiny/raw-data/r32.rds")
+
+# predicted outcomes
+r32 %>% 
+  filter(year == 2015, reg_name == "East") %>% 
+  ggplot(aes(seed, forest)) +
+  geom_col(aes(fill = win_pred)) +
+  scale_fill_manual(name = "Outcome", labels = c("Loss", "Win"), values = c("coral1", "chartreuse1")) +
+  labs(x = "Seed", y = "Projected Wins") +
+  theme(axis.text.x = element_text(angle = 90)) +
+  theme_fivethirtyeight() +
+  geom_text(aes(label = team), size = 3, hjust = 2) +
+  coord_flip()
+```
+
+```{r s16}
+# actual outcomes
+bracket %>% 
+  filter(year == 2015, reg_name == "East", round == 3) %>% 
+  ggplot(aes(seed, forest)) +
+  geom_col(aes(fill = win_actual)) +
+  scale_fill_manual(name = "Outcome", labels = c("Loss", "Win"), values = c("coral1", "chartreuse1")) +
+  labs(x = "Seed", y = "Projected Wins") +
+  theme(axis.text.x = element_text(angle = 90)) +
+  theme_fivethirtyeight() +
+  geom_text(aes(label = team), size = 4, hjust = 2) +
+  coord_flip()
+
+# filter winners of round of 32
+s16 <- r32 %>% 
+  filter(win_pred == 1) %>% 
+  select(year:forest)
+
+# save and reload data
+write.csv(s16, "shiny/raw-data/s16_raw.csv")
+s16 <- read_csv("shiny/raw-data/s16.csv", col_types = cols())
+
+# predicted outcomes
+s16 <- s16 %>% 
+  left_join(s16, by = c("seed_opp" = "seed", "reg_num", "reg_name", "year"), suffix = c("", "_opp")) %>% 
+  select(year, reg_num:forest, team_opp, seed_opp, forest_opp) %>% 
+  mutate(win_pred = as.factor(ifelse(forest > forest_opp, 1, 0)),
+         seed = factor(seed, levels = c(1,16,8,9,5,12,4,13,6,11,3,14,7,10,2,15)))
+
+# override win composite tie with simulation data
+s16[6,10] <- 1
+
+# save data for shiny
+saveRDS(s16, "shiny/raw-data/s16.rds")
+
+# predicted outcomes
+s16 %>% 
+  filter(year == 2015, reg_name == "East") %>% 
+  ggplot(aes(seed, forest)) +
+  geom_col(aes(fill = win_pred)) +
+  scale_fill_manual(name = "Outcome", labels = c("Loss", "Win"), values = c("coral1", "chartreuse1")) +
+  labs(x = "Seed", y = "Projected Wins") +
+  theme(axis.text.x = element_text(angle = 90)) +
+  theme_fivethirtyeight() +
+  geom_text(aes(label = team), size = 4, hjust = 2) +
+  coord_flip()
+```
+
+```{r e8}
+# actual outcomes
+bracket %>% 
+  filter(year == 2015, reg_name == "East", round == 4) %>% 
+  ggplot(aes(seed, forest)) +
+  geom_col(aes(fill = win_actual)) +
+  scale_fill_manual(name = "Outcome", labels = c("Loss", "Win"), values = c("coral1", "chartreuse1")) +
+  labs(x = "Seed", y = "Projected Wins") +
+  theme(axis.text.x = element_text(angle = 90)) +
+  theme_fivethirtyeight() +
+  geom_text(aes(label = team), size = 5, hjust = 2) +
+  coord_flip()
+
+# filter winners of sweet 16
+e8 <- s16 %>% 
+  filter(win_pred == 1) %>% 
+  select(year:forest)
+
+# save and reload data
+write.csv(e8, "shiny/raw-data/e8_raw.csv")
+e8 <- read_csv("shiny/raw-data/e8.csv", col_types = cols())
+
+# predicted outcomes
+e8 <- e8 %>% 
+  left_join(e8, by = c("seed_opp" = "seed", "reg_num", "reg_name", "year"), suffix = c("", "_opp")) %>% 
+  select(year, reg_num:forest, team_opp, seed_opp, forest_opp) %>% 
+  mutate(win_pred = as.factor(ifelse(forest > forest_opp, 1, 0)),
+         seed = factor(seed, levels = c(1,16,8,9,5,12,4,13,6,11,3,14,7,10,2,15)))
+
+# override win composite tie with simulation data
+e8[40,10] <- 1
+
+# save data for shiny
+saveRDS(e8, "shiny/raw-data/e8.rds")
+
+# predicted outcomes
+e8 %>% 
+  filter(year == 2015, reg_name == "East") %>% 
+  ggplot(aes(seed, forest)) +
+  geom_col(aes(fill = win_pred)) +
+  scale_fill_manual(name = "Outcome", labels = c("Loss", "Win"), values = c("coral1", "chartreuse1")) +
+  labs(x = "Seed", y = "Projected Wins") +
+  theme(axis.text.x = element_text(angle = 90)) +
+  theme_fivethirtyeight() +
+  geom_text(aes(label = team), size = 5, hjust = 2) +
+  coord_flip()
+```
+
+```{r final4}
+# actual outcomes
+final_four <- bracket %>% 
+  filter(round == 5)
+
+# save, reload, and resave data for shiny
+write.csv(final_four, "shiny/raw-data/final_four.csv")
+final_four <- read_csv("shiny/raw-data/final_four_edit.csv", col_types = cols())
+saveRDS(final_four, "shiny/raw-data/final_four.rds")
+
+# actual outcomes
+final_four %>% 
+  filter(year == 2015) %>% 
+  ggplot(aes(fct_reorder(team, region_number), forest)) +
+  geom_col(aes(fill = as.factor(win_actual)), position = "dodge") +
+  scale_fill_manual(name = "Outcome", labels = c("Loss", "Win"), values = c("coral1", "chartreuse1")) +
+  labs(x = "Seed", y = "Projected Wins") +
+  theme(axis.text.x = element_text(angle = 90)) +
+  theme_fivethirtyeight() +
+  geom_text(aes(label = region), size = 4, hjust = 2) +
+  coord_flip()
+
+# filter winners of elite 8
+f4 <- e8 %>% 
+  filter(win_pred == 1) %>% 
+  select(year:forest)
+
+# save and reload data
+write.csv(f4, "shiny/raw-data/f4_raw.csv")
+f4 <- read_csv("shiny/raw-data/f4.csv", col_types = cols())
+
+# predicted outcomes
+f4 <- f4 %>% 
+  left_join(f4, by = c("reg_num_opp" = "reg_num", "year"), suffix = c("", "_opp")) %>% 
+  select(year, reg_num:forest, team_opp, seed_opp, forest_opp) %>% 
+  mutate(win_pred = as.factor(ifelse(forest > forest_opp, 1, 0)),
+         seed = factor(seed, levels = c(1,16,8,9,5,12,4,13,6,11,3,14,7,10,2,15)))
+
+# override win composite tie with simulation data
+f4[20,10] <- 1
+
+# save data for shiny
+saveRDS(f4, "shiny/raw-data/f4.rds")
+
+# predicted outcomes
+f4 %>% 
+  filter(year == 2015) %>% 
+  ggplot(aes(fct_reorder(team, reg_num), forest)) +
+  geom_col(aes(fill = win_pred)) +
+  scale_fill_manual(name = "Outcome", labels = c("Loss", "Win"), values = c("coral1", "chartreuse1")) +
+  labs(x = "Seed", y = "Projected Wins") +
+  theme(axis.text.x = element_text(angle = 90)) +
+  theme_fivethirtyeight() +
+  geom_text(aes(label = reg_name), size = 4, hjust = 2) +
+  coord_flip()
+```
+
+```{r championship}
+# actual outcomes
+bracket %>% 
+  filter(year == 2015, round == 6) %>% 
+  mutate(win_actual = factor(win_actual, levels = c(0,1), labels = c("Runner-Up", "Champion"))) %>% 
+  ggplot(aes(team, forest)) +
+  geom_col(aes(fill = win_actual)) +
+  scale_fill_manual(name = "Outcome", values = c("coral1", "chartreuse1")) +
+  labs(x = "Seed", y = "Projected Wins") +
+  theme(axis.text.x = element_text(angle = 90)) +
+  theme_fivethirtyeight() +
+  geom_text(aes(label = win_actual), size = 5, hjust = 2) +
+  coord_flip()
+
+# filter winners of final 4
+championship <- f4 %>% 
+  filter(win_pred == 1) %>% 
+  select(year:forest)
+
+# save and reload data
+write.csv(championship, "shiny/raw-data/championship_raw.csv")
+championship <- read_csv("shiny/raw-data/championship.csv", col_types = cols())
+
+# predicted outcomes
+championship <- championship %>% 
+  left_join(championship, by = c("team_opp" = "team", "year"), suffix = c("", "_opp")) %>% 
+  select(year:forest, team_opp, seed_opp, forest_opp) %>% 
+  mutate(win_pred = as.factor(ifelse(forest > forest_opp, 1, 0)))
+
+# save data for shiny
+saveRDS(championship, "shiny/raw-data/championship.rds")
+
+# predicted outcomes
+championship %>% 
+  filter(year == 2015) %>% 
+  mutate(win_pred = factor(win_pred, levels = c(0,1), labels = c("Runner-Up", "Champion"))) %>% 
+  ggplot(aes(team, forest)) +
+  geom_col(aes(fill = win_pred)) +
+  scale_fill_manual(name = "Outcome", values = c("coral1", "chartreuse1")) +
+  labs(x = "Seed", y = "Projected Wins") +
+  theme(axis.text.x = element_text(angle = 90)) +
+  theme_fivethirtyeight() +
+  geom_text(aes(label = win_pred), size = 5, hjust = 2) +
+  coord_flip()
+```

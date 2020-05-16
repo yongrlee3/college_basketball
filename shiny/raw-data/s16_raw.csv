@@ -1,0 +1,81 @@
+"","year","reg_num","reg_name","team","seed","forest"
+"1",2015,3,"East","Michigan St.","7",53
+"2",2015,3,"East","Northern Iowa","5",55
+"3",2015,3,"East","Oklahoma","3",48
+"4",2015,3,"East","Villanova","1",60
+"5",2015,1,"Midwest","Kentucky","1",59
+"6",2015,1,"Midwest","Notre Dame","3",57
+"7",2015,1,"Midwest","West Virginia","5",44
+"8",2015,1,"Midwest","Wichita St.","7",57
+"9",2015,4,"South","Duke","1",63
+"10",2015,4,"South","Gonzaga","2",59
+"11",2015,4,"South","Iowa St.","3",37
+"12",2015,4,"South","Utah","5",53
+"13",2015,2,"West","Arizona","2",59
+"14",2015,2,"West","Baylor","3",43
+"15",2015,2,"West","North Carolina","4",52
+"16",2015,2,"West","Wisconsin","1",61
+"17",2016,3,"East","Kentucky","4",54
+"18",2016,3,"East","North Carolina","1",61
+"19",2016,3,"East","Notre Dame","6",43
+"20",2016,3,"East","Xavier","2",47
+"21",2016,4,"Midwest","Gonzaga","11",57
+"22",2016,4,"Midwest","Purdue","5",52
+"23",2016,4,"Midwest","Syracuse","10",55
+"24",2016,4,"Midwest","Virginia","1",59
+"25",2016,1,"South","Kansas","1",60
+"26",2016,1,"South","Maryland","5",46
+"27",2016,1,"South","Miami FL","3",50
+"28",2016,1,"South","Villanova","2",63
+"29",2016,2,"West","Duke","4",42
+"30",2016,2,"West","Oklahoma","2",59
+"31",2016,2,"West","Oregon","1",52
+"32",2016,2,"West","Texas A&M","3",54
+"33",2017,1,"East","Florida","4",54
+"34",2017,1,"East","SMU","6",51
+"35",2017,1,"East","South Carolina","7",54
+"36",2017,1,"East","Villanova","1",61
+"37",2017,3,"Midwest","Kansas","1",55
+"38",2017,3,"Midwest","Louisville","2",49
+"39",2017,3,"Midwest","Oregon","3",58
+"40",2017,3,"Midwest","Purdue","4",50
+"41",2017,4,"South","Butler","4",37
+"42",2017,4,"South","Kentucky","2",60
+"43",2017,4,"South","North Carolina","1",63
+"44",2017,4,"South","UCLA","3",52
+"45",2017,2,"West","Gonzaga","1",60
+"46",2017,2,"West","Saint Mary's","7",55
+"47",2017,2,"West","West Virginia","4",50
+"48",2017,2,"West","Xavier","11",37
+"49",2018,3,"East","Purdue","2",58
+"50",2018,3,"East","Texas Tech","3",55
+"51",2018,3,"East","Villanova","1",63
+"52",2018,3,"East","West Virginia","5",49
+"53",2018,4,"Midwest","Clemson","5",48
+"54",2018,4,"Midwest","Duke","2",59
+"55",2018,4,"Midwest","Kansas","1",60
+"56",2018,4,"Midwest","Michigan St.","3",52
+"57",2018,1,"South","Cincinnati","2",54
+"58",2018,1,"South","Kentucky","5",42
+"59",2018,1,"South","Loyola Chicago","11",55
+"60",2018,1,"South","Virginia","1",52
+"61",2018,2,"West","Florida St.","9",44
+"62",2018,2,"West","Gonzaga","4",59
+"63",2018,2,"West","Michigan","3",58
+"64",2018,2,"West","Texas A&M","7",45
+"65",2019,1,"East","Duke","1",59
+"66",2019,1,"East","LSU","3",48
+"67",2019,1,"East","Michigan St.","2",61
+"68",2019,1,"East","Virginia Tech","4",54
+"69",2019,4,"Midwest","Auburn","5",56
+"70",2019,4,"Midwest","Houston","3",55
+"71",2019,4,"Midwest","Kentucky","2",57
+"72",2019,4,"Midwest","North Carolina","1",54
+"73",2019,3,"South","Oregon","12",45
+"74",2019,3,"South","Purdue","3",57
+"75",2019,3,"South","Tennessee","2",56
+"76",2019,3,"South","Virginia","1",63
+"77",2019,2,"West","Florida St.","4",46
+"78",2019,2,"West","Gonzaga","1",61
+"79",2019,2,"West","Michigan","2",53
+"80",2019,2,"West","Texas Tech","3",61

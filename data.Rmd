@@ -24,31 +24,29 @@ tournament <- read_csv("raw-data/tournament.csv", col_types = cols())
 
 # read in list data
 list <- read_csv("raw-data/list.csv", col_types = cols())
-```
 
-```{r wrangle_data}
 # lower case column names
 names(season) <- tolower(names(season))
 names(tournament) <- tolower(names(tournament))
+```
 
+```{r data_winner}
 # convert round to factor for eventual join
-# create duplicate variable
-tournament <- tournament %>%
+tournament_winner <- tournament %>%
   left_join(list, by = c("team" = "tournament")) %>%
-  left_join(list, by = c("team_1" = "tournament")) %>%
+  left_join(list, by = c("team_1" = "tournament")) %>% 
   mutate(
     round = as.factor(round),
     duplicate = 2,
     team = season.x,
-    team_1 = season.y
-  )
+    team_1 = season.y)
 
 # duplicate tournament data
 # reassign team and opponent data
-tournament <- tournament %>%
+tournament_winner <- tournament_winner %>%
   uncount(duplicate, .remove = FALSE) %>%
   mutate(
-    iteration = as.factor(unlist(c(sapply(tournament$duplicate, function(x) seq(1, x))))),
+    iteration = as.factor(unlist(c(sapply(tournament_winner$duplicate, function(x) seq(1, x))))),
     opp_seed = seed,
     opp_team = team,
     opp_score = score,
@@ -61,14 +59,14 @@ tournament <- tournament %>%
   )
 
 # select tournament variables for join
-tournament <- tournament %>%
+tournament_winner <- tournament_winner %>%
   select(year, round, reg_num = "region number", reg_name = "region name", seed:team, seed_opp = seed_1, team_opp = team_1, score_opp = score_1) %>% 
   filter(year %in% 2015:2019)
 
 # specify rounds qualified in season data
 # filter out teams that didn't qualify
 # filter out teams that did not qualify after First Four round
-season <- season %>%
+season_winner <- season %>%
   filter(!is.na(postseason), postseason != "R68") %>%
   mutate(
     tour_games = ifelse(postseason == "R64", 1,
@@ -85,28 +83,127 @@ season <- season %>%
   )
 
 # save file for visualizations
-saveRDS(season, "shiny/raw-data/data_season.rds")
+saveRDS(season_winner, "shiny/raw-data/season_winner.rds")
 
 # convert team-level data to team-round data
 # duplicate observations to mirror rounds qualified
-season <- season %>%
+season_winner <- season_winner %>%
   uncount(tour_games, .remove = FALSE) %>%
   mutate(
-    round = as.factor(unlist(c(sapply(season$tour_games, function(x) seq(1, x)))))) %>%
+    round = as.factor(unlist(c(sapply(season_winner$tour_games, function(x) seq(1, x)))))) %>%
   select(-seed, -postseason, -tour_games)
 
 # join season and tournament datasets
-data <- season %>%
-  left_join(tournament, by = c("year" = "year", "round" = "round", "team" = "team"))
+data_winner <- season_winner %>%
+  left_join(tournament_winner, by = c("year" = "year", "round" = "round", "team" = "team"))
 
 # trim season dataset to contain only opponent data
 # join data dataset to season to include opponent statistics
 # reorder variables
 # assign game outcome value (1: win, 0: lose)
-season <- season %>% 
+season_winner <- season_winner %>% 
   select(team:year, round, win_pct:wab_rank)
-data <- data %>% 
-  left_join(season, by = c("year" = "year", "round" = "round", "team_opp" = "team"), suffix = c("", "_opp")) %>% 
+data_winner <- data_winner %>% 
+  left_join(season_winner, by = c("year" = "year", "round" = "round", "team_opp" = "team"), suffix = c("", "_opp")) %>%
+  select(year, round, reg_name, reg_num, team:conf, seed:score, team_opp, conf_opp, seed_opp, score_opp, win_pct:wab_rank, win_pct_opp:wab_rank_opp) %>% 
+  mutate(win = ifelse(score > score_opp, 1, 0)) %>% 
+  filter(win == 1)
+
+# check for missing data
+#data %>% filter(is.na(reg_num))
+
+# school naming conventions an issue
+# too many unique mismatches
+# created index list in MS Excel
+# imported list, joined list to tournament dataset
+# joined to season dataset using newly aligned names
+# 63 games duplicated for each side for 5 years: 630 total
+# check is good
+
+# save final dataset
+saveRDS(data_winner, "shiny/raw-data/data_winner.rds")
+```
+
+```{r data_all}
+# convert round to factor for eventual join
+# create duplicate variable
+tournament_all <- tournament %>%
+  left_join(list, by = c("team" = "tournament")) %>%
+  left_join(list, by = c("team_1" = "tournament")) %>%
+  mutate(
+    round = as.factor(round),
+    duplicate = 2,
+    team = season.x,
+    team_1 = season.y
+  )
+
+# duplicate tournament data
+# reassign team and opponent data
+tournament_all <- tournament_all %>%
+  uncount(duplicate, .remove = FALSE) %>%
+  mutate(
+    iteration = as.factor(unlist(c(sapply(tournament_all$duplicate, function(x) seq(1, x))))),
+    opp_seed = seed,
+    opp_team = team,
+    opp_score = score,
+    seed = ifelse(iteration == 2, seed_1, seed),
+    team = ifelse(iteration == 2, team_1, team),
+    score = ifelse(iteration == 2, score_1, score),
+    seed_1 = ifelse(iteration == 2, opp_seed, seed_1),
+    team_1 = ifelse(iteration == 2, opp_team, team_1),
+    score_1 = ifelse(iteration == 2, opp_score, score_1)
+  )
+
+# save dataset
+saveRDS(tournament_all, "shiny/raw-data/tournament_all.rds")
+
+# select tournament variables for join
+tournament_all <- tournament_all %>%
+  select(year, round, reg_num = "region number", reg_name = "region name", seed:team, seed_opp = seed_1, team_opp = team_1, score_opp = score_1) %>% 
+  filter(year %in% 2015:2019)
+
+# specify rounds qualified in season data
+# filter out teams that didn't qualify
+# filter out teams that did not qualify after First Four round
+season_all <- season %>%
+  filter(!is.na(postseason), postseason != "R68") %>%
+  mutate(
+    tour_games = ifelse(postseason == "R64", 1,
+      ifelse(postseason == "R32", 2,
+        ifelse(postseason == "S16", 3,
+          ifelse(postseason == "E8", 4,
+            ifelse(postseason == "F4", 5,
+              ifelse(postseason == "2ND", 6, 6)
+            )
+          )
+        )
+      )
+    )
+  )
+
+# save file for visualizations
+saveRDS(season_all, "shiny/raw-data/season_all.rds")
+
+# convert team-level data to team-round data
+# duplicate observations to mirror rounds qualified
+season_all <- season_all %>%
+  uncount(tour_games, .remove = FALSE) %>%
+  mutate(
+    round = as.factor(unlist(c(sapply(season_all$tour_games, function(x) seq(1, x)))))) %>%
+  select(-seed, -postseason, -tour_games)
+
+# join season and tournament datasets
+data_all <- season_all %>%
+  left_join(tournament_all, by = c("year" = "year", "round" = "round", "team" = "team"))
+
+# trim season dataset to contain only opponent data
+# join data dataset to season to include opponent statistics
+# reorder variables
+# assign game outcome value (1: win, 0: lose)
+season_all <- season_all %>% 
+  select(team:year, round, win_pct:wab_rank)
+data_all <- data_all %>% 
+  left_join(season_all, by = c("year" = "year", "round" = "round", "team_opp" = "team"), suffix = c("", "_opp")) %>% 
   select(year, round, reg_name, reg_num, team:conf, seed:score, team_opp, conf_opp, seed_opp, score_opp, win_pct:wab_rank, win_pct_opp:wab_rank_opp) %>% 
   mutate(win = ifelse(score > score_opp, 1, 0))
 
@@ -122,5 +219,35 @@ data <- data %>%
 # check is good
 
 # save final dataset
-saveRDS(data, "shiny/raw-data/data_final.rds")
+saveRDS(data_all, "shiny/raw-data/data_all.rds")
 ```
+
+```{r data_test}
+# load data
+season_matchups <- read_csv("raw-data/season_matchups.csv", col_types = cols())
+
+# lower case column names
+names(season_matchups) <- tolower(names(season_matchups))
+
+# duplicate observations for each possible tounament matchup
+season_test <- season_matchups %>%
+  uncount(duplicate, .remove = FALSE) %>%
+  mutate(
+    matchup = unlist(c(sapply(season_matchups$duplicate, function(x) seq(1, x))))) %>% 
+  select(-conf, -postseason, -seed, -g, -w, -duplicate)
+
+write.csv(season_test, "raw-data/season_test_raw.csv")
+
+# manually updated data in excel
+# save new files called season_test
+
+# load data
+season_test <- read_csv("raw-data/season_test.csv", col_types = cols()) %>% 
+  mutate(flag = ifelse(team == team_opp, 1, 0)) %>% 
+  filter(flag != 1) %>% 
+  select(number, team, team_opp, year, everything(), -matchup, -flag)
+
+# save data
+saveRDS(season_test, "shiny/raw-data/season_test.rds")
+```
+

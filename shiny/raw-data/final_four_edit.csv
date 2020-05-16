@@ -1,0 +1,21 @@
+region_number,region,year,round,reg_num,reg_name,team,seed,score,team_opp,score_opp,forest,lasso,ridge,net,forest_opp,lasso_opp,ridge_opp,net_opp,win_pred,win_actual
+4,South,2015,5,2,Final Four,Duke,1,81,Michigan St.,61,63,62,62,62,53,47,47,47,1,1
+1,Midwest,2015,5,1,Final Four,Kentucky,1,64,Wisconsin,71,59,63,63,63,61,58,58,58,0,0
+3,East,2015,5,2,Final Four,Michigan St.,7,61,Duke,81,53,47,47,47,63,62,62,62,0,0
+2,West,2015,5,1,Final Four,Wisconsin,1,71,Kentucky,64,61,58,58,58,59,63,63,63,1,1
+3,East,2016,5,2,Final Four,North Carolina,1,83,Syracuse,66,61,60,60,60,55,55,55,55,1,1
+2,West,2016,5,1,Final Four,Oklahoma,2,51,Villanova,95,59,58,58,58,63,63,63,63,0,0
+4,Midwest,2016,5,2,Final Four,Syracuse,10,66,North Carolina,83,55,55,55,55,61,60,60,60,0,0
+1,South,2016,5,1,Final Four,Villanova,2,95,Oklahoma,51,63,63,63,63,59,58,58,58,1,1
+2,West,2017,5,1,Final Four,Gonzaga,1,77,South Carolina,73,60,61,61,61,54,40,40,40,1,1
+4,South,2017,5,2,Final Four,North Carolina,1,77,Oregon,76,63,59,59,59,58,62,62,62,1,1
+3,Midwest,2017,5,2,Final Four,Oregon,3,76,North Carolina,77,58,62,62,62,63,59,59,59,0,0
+1,East,2017,5,1,Final Four,South Carolina,7,73,Gonzaga,77,54,40,40,40,60,61,61,61,0,0
+4,Midwest,2018,5,2,Final Four,Kansas,1,79,Villanova,95,60,61,61,61,63,63,63,63,0,0
+1,South,2018,5,1,Final Four,Loyola Chicago,11,57,Michigan,69,55,44,44,44,58,59,59,59,0,0
+2,West,2018,5,1,Final Four,Michigan,3,69,Loyola Chicago,57,58,59,59,59,55,44,44,44,1,1
+3,East,2018,5,2,Final Four,Villanova,1,95,Kansas,79,63,63,63,63,60,61,61,61,1,1
+4,Midwest,2019,5,2,Final Four,Auburn,5,62,Virginia,63,56,58,58,58,63,63,63,63,0,0
+1,East,2019,5,1,Final Four,Michigan St.,2,51,Texas Tech,61,61,57,57,57,61,61,61,61,0,0
+2,West,2019,5,1,Final Four,Texas Tech,3,61,Michigan St.,51,61,61,61,61,61,57,57,57,0,1
+3,South,2019,5,2,Final Four,Virginia,1,63,Auburn,62,63,63,63,63,56,58,58,58,1,1
