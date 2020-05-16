@@ -1,0 +1,33 @@
+region,team,seed,forest,lasso,ridge,net,seed_opp
+East,Dayton,1,63,60,60,60,8
+East,Duke,2,59,61,61,61,7
+East,Houston,7,53,44,44,44,2
+East,Michigan St.,3,56,59,59,59,6
+East,Ohio St.,5,53,46,46,46,4
+East,Oregon,4,52,55,55,55,5
+East,Providence,8,38,45,45,45,1
+East,Virginia,6,30,39,39,39,3
+Midwest,Auburn,5,35,30,30,30,4
+Midwest,Baylor,1,60,63,63,63,9
+Midwest,Kentucky,3,38,39,39,39,11
+Midwest,Maryland,4,40,34,34,34,5
+Midwest,Saint Mary's,9,29,32,32,32,1
+Midwest,Texas Tech,10,41,52,52,52,2
+Midwest,Villanova,2,53,55,55,55,10
+Midwest,Xavier,11,41,35,35,35,3
+South,Creighton,3,56,56,56,56,6
+South,Florida St.,2,51,59,59,59,7
+South,Kansas,1,59,62,62,62,8
+South,LSU,8,33,25,25,25,1
+South,Michigan,7,45,50,50,50,2
+South,Penn St.,6,49,54,54,54,3
+South,West Virginia,5,50,41,41,41,4
+South,Wisconsin,4,42,50,50,50,5
+West,Butler,5,53,41,41,41,4
+West,BYU,6,40,50,50,50,3
+West,Gonzaga,1,62,54,54,54,9
+West,Louisville,4,55,48,48,48,5
+West,Rutgers,10,48,42,42,42,2
+West,San Diego St.,2,61,59,59,59,10
+West,Seton Hall,3,47,49,49,49,6
+West,USC,9,36,33,33,33,1

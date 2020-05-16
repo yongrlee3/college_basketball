@@ -1,0 +1,9 @@
+region,team,seed,forest,lasso,ridge,net,team_opp,seed_opp,forest_opp,lasso_opp,ridge_opp,net_opp
+East,Dayton,1,63,60,60,60,Duke,2,59,61,61,61
+East,Duke,2,59,61,61,61,Dayton,1,63,60,60,60
+Midwest,Baylor,1,60,63,63,63,Villanova,2,53,55,55,55
+Midwest,Villanova,2,53,55,55,55,Baylor,1,60,63,63,63
+South,Creighton,3,56,56,56,56,Kansas,1,59,62,62,62
+South,Kansas,1,59,62,62,62,Creighton,3,56,56,56,56
+West,Gonzaga,1,62,54,54,54,San Diego St.,2,61,59,59,59
+West,San Diego St.,2,61,59,59,59,Gonzaga,1,62,54,54,54

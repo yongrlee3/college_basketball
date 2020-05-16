@@ -20,6 +20,14 @@ s16 <- read_rds("raw-data/s16.rds")
 e8 <- read_rds("raw-data/e8.rds")
 f4 <- read_rds("raw-data/f4.rds")
 championship <- read_rds("raw-data/championship.rds") 
+cbb20_final <- read_rds("raw-data/cbb20_final.rds")
+cbb20_compositefinal <- read_rds("raw-data/cbb20_compositefinal.rds")
+bracket20 <- read_rds("raw-data/bracket20.rds")
+r32_20 <- read_rds("raw-data/r32_20.rds")
+s16_20 <- read_rds("raw-data/s16_20.rds")
+e8_20 <- read_rds("raw-data/e8_20.rds")
+f4_20 <- read_rds("raw-data/f4_20.rds")
+finals_20 <- read_rds("raw-data/finals_20.rds")
 
 # assign dataset variables
 statistics <- c("Win %" = "win_pct", "Offensive Efficiency" = "adjoe", "Defensive Efficiency" = "adjde", "Power Rating" = "barthag", "Field Goal %" = "efg_o", "Field Goal % Allowed" = "efg_d", "Turnover Rate" = "tor", "Steal Rate" = "tord", "Offensive Rebound %" = "orb", "Defensive Rebound %" = "drb", "Free Throw Rate" = "ftr", "Free Throw Rate Allowed" = "ftrd", "2-Pt Shooting %" = "twop_o", "2-Pt Shooting % Allowed" = "twop_d", "3-Pt Shooting %" = "threep_o", "3-Pt Shooting % Allowed" = "threep_d", "Tempo" = "adj_t", "Wins Above Bubble" = "wab")
@@ -73,7 +81,7 @@ ui <- navbarPage(
       selectInput(
         "comparison",
         "Comparison",
-        c("Finalists" = "finals", "Final Four" = "final_4", "Elite Eight" = "elite_8", "Sweet Sixteen" = "sweet_16", "Round of 32" = "round_32")
+        c("Finalists" = "finals", "Final Four" = "final_4", "Elite Eight" = "elite_8", "Sweet 16" = "sweet_16", "Round of 32" = "round_32")
       ),
       selectInput(
         "stat",
@@ -190,7 +198,7 @@ ui <- navbarPage(
         )
       ),
       tabPanel(
-        "Elite 8",
+        "Elite Eight",
         sidebarPanel(
           selectInput(
             "result8",
@@ -257,11 +265,95 @@ ui <- navbarPage(
     )
   ),
   tabPanel(
-    "2020 Tournament"
+    "2020 Tournament",
+    tabsetPanel(
+      tabPanel(
+        "Rankings",
+        h3("Predicted Win Total (Out of 63 Games)"),
+        tableOutput(
+          "rankings20"
+        )
+      ),
+      tabPanel(
+        "Round of 64",
+        sidebarPanel(
+          selectInput(
+            "region64_20",
+            "Region",
+            c("East", "South", "West", "Midwest")
+          )
+        ),
+        mainPanel(
+          plotOutput(
+            "R64_20"
+          )
+        )
+      ),
+      tabPanel(
+        "Round of 32",
+        sidebarPanel(
+          selectInput(
+            "region32_20",
+            "Region",
+            c("East", "South", "West", "Midwest")
+          )
+        ),
+        mainPanel(
+          plotOutput(
+            "R32_20"
+          )
+        )
+      ),
+      tabPanel(
+        "Sweet 16",
+        sidebarPanel(
+          selectInput(
+            "region16_20",
+            "Region",
+            c("East", "South", "West", "Midwest")
+          )
+        ),
+        mainPanel(
+          plotOutput(
+            "S16_20"
+          )
+        )
+      ),
+      tabPanel(
+        "Elite Eight",
+        sidebarPanel(
+          selectInput(
+            "region8_20",
+            "Region",
+            c("East", "South", "West", "Midwest")
+          )
+        ),
+        mainPanel(
+          plotOutput(
+            "E8_20"
+          )
+        )
+      ),
+      tabPanel(
+        "Final Four",
+        plotOutput(
+          "F4_20"
+        )
+      ),
+      tabPanel(
+        "Championship",
+        plotOutput(
+          "Championship_20"
+        ),
+        h1("University of Dayton: 2020 National Champions"),
+        p("For the first time since 1967, Dayton advances to face Gonzaga in the 2020 National Championship. Relying on their slow tempo offense and superior rebounding, Dayton defeats Gonzaga to secure its first national title in program history. ")
+      )
+    )      
   )
 )
 
 server <- function(input, output) {
+  
   output$stat_plot <- renderPlot(
     if (input$comparison == "finals") {
       finals %>%
@@ -379,7 +471,7 @@ server <- function(input, output) {
         labs(x = "Seed", y = "Projected Wins") +
         theme(axis.text.x = element_text(angle = 90)) +
         theme_fivethirtyeight() +
-        geom_text(aes(label = team), size = 4, hjust = 2) +
+        geom_text(aes(label = team), size = 3, hjust = 2) +
         coord_flip()
     }
     else if (input$result16 == "Predicted") {
@@ -391,7 +483,7 @@ server <- function(input, output) {
         labs(x = "Seed", y = "Projected Wins") +
         theme(axis.text.x = element_text(angle = 90)) +
         theme_fivethirtyeight() +
-        geom_text(aes(label = team), size = 4, hjust = 2) +
+        geom_text(aes(label = team), size = 3, hjust = 2) +
         coord_flip()
     }
   )
@@ -406,7 +498,7 @@ server <- function(input, output) {
         labs(x = "Seed", y = "Projected Wins") +
         theme(axis.text.x = element_text(angle = 90)) +
         theme_fivethirtyeight() +
-        geom_text(aes(label = team), size = 5, hjust = 2) +
+        geom_text(aes(label = team), size = 4, hjust = 2) +
         coord_flip()
     }
     else if (input$result8 == "Predicted") {
@@ -418,7 +510,7 @@ server <- function(input, output) {
         labs(x = "Seed", y = "Projected Wins") +
         theme(axis.text.x = element_text(angle = 90)) +
         theme_fivethirtyeight() +
-        geom_text(aes(label = team), size = 5, hjust = 2) +
+        geom_text(aes(label = team), size = 4, hjust = 2) +
         coord_flip()
     }
   )
@@ -461,7 +553,7 @@ server <- function(input, output) {
         labs(x = "Seed", y = "Projected Wins") +
         theme(axis.text.x = element_text(angle = 90)) +
         theme_fivethirtyeight() +
-        geom_text(aes(label = win_actual), size = 5, hjust = 2) +
+        geom_text(aes(label = win_actual), size = 4, hjust = 2) +
         coord_flip()
     }
     else if (input$result2 == "Predicted"){
@@ -474,10 +566,95 @@ server <- function(input, output) {
         labs(x = "Seed", y = "Projected Wins") +
         theme(axis.text.x = element_text(angle = 90)) +
         theme_fivethirtyeight() +
-        geom_text(aes(label = win_pred), size = 5, hjust = 2) +
+        geom_text(aes(label = win_pred), size = 4, hjust = 2) +
         coord_flip()
     }
   )
+  
+  output$rankings20 <- renderTable(
+    cbb20_compositefinal %>% 
+      left_join(cbb20_final, by = c("team")) %>% 
+      arrange(desc(forest)) %>% 
+      select(Team = team, "Random Forest" = forest, LASSO = lasso, Ridge = ridge, "Elastic Net" = net, Region = region, Seed = seed) %>% 
+      gt()
+  )
+  
+  output$R64_20 <- renderPlot(
+    bracket20 %>%
+      filter(region == input$region64_20) %>%
+      ggplot(aes(seed, forest)) +
+      geom_col(aes(fill = win_pred)) +
+      scale_fill_manual(name = "Outcome", labels = c("Loss", "Win"), values = c("coral1", "chartreuse1")) +
+      labs(x = "Seed", y = "Projected Wins") +
+      theme(axis.text.x = element_text(angle = 90)) +
+      theme_fivethirtyeight() +
+      geom_text(aes(label = team), size = 2) +
+      coord_flip()
+  )
+  
+  output$R32_20 <- renderPlot(
+    r32_20 %>%
+      filter(region == input$region32_20) %>%
+      ggplot(aes(seed, forest)) +
+      geom_col(aes(fill = win_pred)) +
+      scale_fill_manual(name = "Outcome", labels = c("Loss", "Win"), values = c("coral1", "chartreuse1")) +
+      labs(x = "Seed", y = "Projected Wins") +
+      theme(axis.text.x = element_text(angle = 90)) +
+      theme_fivethirtyeight() +
+      geom_text(aes(label = team), size = 3, hjust = 2) +
+      coord_flip()
+  )  
+  
+  output$S16_20 <- renderPlot(
+    s16_20 %>%
+      filter(region == input$region16_20) %>%
+      ggplot(aes(seed, forest)) +
+      geom_col(aes(fill = win_pred)) +
+      scale_fill_manual(name = "Outcome", labels = c("Loss", "Win"), values = c("coral1", "chartreuse1")) +
+      labs(x = "Seed", y = "Projected Wins") +
+      theme(axis.text.x = element_text(angle = 90)) +
+      theme_fivethirtyeight() +
+      geom_text(aes(label = team), size = 3, hjust = 2) +
+      coord_flip()
+  )  
+  
+  output$E8_20 <- renderPlot(
+    e8_20 %>%
+      filter(region == input$region8_20) %>%
+      ggplot(aes(seed, forest)) +
+      geom_col(aes(fill = win_pred)) +
+      scale_fill_manual(name = "Outcome", labels = c("Loss", "Win"), values = c("coral1", "chartreuse1")) +
+      labs(x = "Seed", y = "Projected Wins") +
+      theme(axis.text.x = element_text(angle = 90)) +
+      theme_fivethirtyeight() +
+      geom_text(aes(label = team), size = 4, hjust = 2) +
+      coord_flip()
+  )  
+  
+  output$F4_20 <- renderPlot(
+    f4_20 %>%
+      ggplot(aes(fct_reorder(team, region_number), forest)) +
+      geom_col(aes(fill = win_pred)) +
+      scale_fill_manual(name = "Outcome", labels = c("Loss", "Win"), values = c("coral1", "chartreuse1")) +
+      labs(x = "Seed", y = "Projected Wins") +
+      theme(axis.text.x = element_text(angle = 90)) +
+      theme_fivethirtyeight() +
+      geom_text(aes(label = region), size = 4, hjust = 2) +
+      coord_flip()
+  )    
+  
+  output$Championship_20 <- renderPlot(
+    finals_20 %>%
+      mutate(win_pred = factor(win_pred, levels = c(0,1), labels = c("Runner-Up", "Champion"))) %>% 
+      ggplot(aes(fct_reorder(team, region_number), forest)) +
+      geom_col(aes(fill = win_pred)) +
+      scale_fill_manual(name = "Outcome", values = c("coral1", "chartreuse1")) +
+      labs(x = "Seed", y = "Projected Wins") +
+      theme(axis.text.x = element_text(angle = 90)) +
+      theme_fivethirtyeight() +
+      geom_text(aes(label = win_pred), size = 4, hjust = 2) +
+      coord_flip()
+  )    
 }
 
 # Run the application

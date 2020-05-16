@@ -1,0 +1,17 @@
+region,team,seed,forest,lasso,ridge,net,team_opp
+East,Dayton,1,63,60,60,60,Ohio St.
+East,Duke,2,59,61,61,61,Michigan St.
+East,Michigan St.,3,56,59,59,59,Duke
+East,Ohio St.,5,53,46,46,46,Dayton
+Midwest,Baylor,1,60,63,63,63,Maryland
+Midwest,Maryland,4,40,34,34,34,Baylor
+Midwest,Villanova,2,53,55,55,55,Xavier
+Midwest,Xavier,11,41,35,35,35,Villanova
+South,Creighton,3,56,56,56,56,Florida St.
+South,Florida St.,2,51,59,59,59,Creighton
+South,Kansas,1,59,62,62,62,West Virginia
+South,West Virginia,5,50,41,41,41,Kansas
+West,Gonzaga,1,62,54,54,54,Louisville
+West,Louisville,4,55,48,48,48,Gonzaga
+West,San Diego St.,2,61,59,59,59,Seton Hall
+West,Seton Hall,3,47,49,49,49,San Diego St.

@@ -1,0 +1,341 @@
+---
+title: "prediction"
+author: "Yong Lee"
+date: "5/15/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# clear
+rm(list = ls())
+
+# load packages
+library(tidyverse)
+library(gganimate)
+library(rpart)
+library(rattle)
+library(caret)
+library(randomForest)
+library(glmnet)
+library(gt)
+library(ggthemes)
+
+# load data
+cbb20 <- read_csv("raw-data/cbb20.csv", col_types = cols())
+data <- read_rds("shiny/raw-data/data_all.rds")
+```
+
+````{r data}
+# change column names to lower case
+names(cbb20) <- tolower(names(cbb20))
+
+# create value for duplications
+cbb20 <- cbb20 %>% 
+  mutate(duplicate = 68)
+
+# create 68 observations for each team
+cbb20_test <- cbb20 %>% 
+  uncount(duplicate, .remove = FALSE) %>% 
+  mutate(iteration = as.factor(unlist(c(sapply(cbb20$duplicate, function(x) seq(1, x)))))) %>% 
+  select(-seed_opp, -g, -w, -duplicate, -iteration)
+
+# save for manual edit
+write.csv(cbb20_test, "raw-data/cbb20_test_raw.csv")
+
+# reload edited data
+cbb20_test <- read_csv("raw-data/cbb20_test.csv", col_types = cols())
+
+# remove matchup where team plays itself
+cbb20_test <- cbb20_test %>% 
+  mutate(flag = ifelse(team == team_opp, 1, 0)) %>% 
+  filter(flag != 1)
+```
+
+```{r win probability}
+# assign predictors and outcome to formula variable
+formula <- formula('factor(win) ~ win_pct_rank + adjoe_rank + adjde_rank + efg_o_rank + efg_d_rank + tor_rank + tord_rank + orb_rank + drb_rank + ftr_rank + ftrd_rank + twop_o_rank + twop_d_rank + threep_o_rank + threep_d_rank + adj_t_rank + win_pct_rank_opp + adjoe_rank_opp + adjde_rank_opp + efg_o_rank_opp + efg_d_rank_opp + tor_rank_opp + tord_rank_opp + orb_rank_opp + drb_rank_opp + ftr_rank_opp + ftrd_rank_opp + twop_o_rank_opp + twop_d_rank_opp + threep_o_rank_opp + threep_d_rank_opp + adj_t_rank_opp')
+
+# assign all predictors to list
+metrics <- c('win_pct_rank', 'adjoe_rank', 'adjde_rank', 'efg_o_rank', 'efg_d_rank', 'tor_rank', 'tord_rank', 'orb_rank', 'drb_rank', 'ftr_rank', 'ftrd_rank', 'twop_o_rank', 'twop_d_rank', 'threep_o_rank', 'threep_d_rank', 'adj_t_rank', 'win_pct_rank_opp', 'adjoe_rank_opp', 'adjde_rank_opp', 'efg_o_rank_opp', 'efg_d_rank_opp', 'tor_rank_opp', 'tord_rank_opp', 'orb_rank_opp', 'drb_rank_opp', 'ftr_rank_opp', 'ftrd_rank_opp', 'twop_o_rank_opp', 'twop_d_rank_opp', 'threep_o_rank_opp', 'threep_d_rank_opp', 'adj_t_rank_opp')
+
+# specify training data 
+model <- paste0('~ ', paste(metrics, collapse = ' + ')) %>% formula()
+x <- model.matrix(model, data = data)
+test <- model.matrix(model, data = cbb20_test)
+
+# fit the four candidate models
+random_forest <- randomForest(formula, data = data, method = 'rf', ntree = 200, na.action = na.omit)
+lasso_cv <- cv.glmnet(x = x, y = data$win, nfold = 100, alpha = 1)
+ridge_cv <- cv.glmnet(x = x, y = data$win, nfold = 100, alpha = 0)
+net_cv <- cv.glmnet(x = x, y = data$win, nfold = 100, alpha = .5)
+
+# generate predictions
+cbb20_test$forest <- predict(random_forest, cbb20_test)
+cbb20_test$forest <- as.numeric(cbb20_test$forest) -1
+cbb20_test$lasso <- predict(lasso_cv, test, s = 'lambda.min')
+cbb20_test$lasso <- round(cbb20_test$lasso, 0)
+cbb20_test$ridge <- predict(lasso_cv, test, s = 'lambda.min')
+cbb20_test$ridge <- round(cbb20_test$ridge, 0)
+cbb20_test$net <- predict(lasso_cv, test, s = 'lambda.min')
+cbb20_test$net <- round(cbb20_test$net, 0)
+
+# calculate win totals from all 67 matchups
+cbb20_composite <- cbb20_test %>% 
+  group_by(team) %>% 
+  summarize(forest = sum(forest),
+            lasso = sum(lasso),
+            ridge = sum(ridge),
+            net = sum(net))
+```
+
+```{r eligible}
+# examine first four teams to trim to 64 eligible
+#cbb20_test %>% filter(team == "Richmond" & team_opp == "UCLA")
+# NC Central beats Robert Morris
+# BU beats PV A&M
+# Xavier beats NC State
+# Richmond beats UCLA
+
+# eliminate first four losers from cbb20 and cbb20_test datasets
+# reload data
+cbb20_final <- read_csv("raw-data/cbb20final.csv", col_types = cols())
+cbb20_testfinal <- read_csv("raw-data/cbb20_testfinal.csv", col_types = cols())
+
+# remove matchup where team plays itself
+cbb20_testfinal <- cbb20_testfinal %>% 
+  mutate(flag = ifelse(team == team_opp, 1, 0)) %>% 
+  filter(flag != 1)
+
+# rerun predictions using only the 64 eligible teams
+# trimmed down from original 68 qualifiers
+# assign predictors and outcome to formula variable
+formula <- formula('factor(win) ~ win_pct_rank + adjoe_rank + adjde_rank + efg_o_rank + efg_d_rank + tor_rank + tord_rank + orb_rank + drb_rank + ftr_rank + ftrd_rank + twop_o_rank + twop_d_rank + threep_o_rank + threep_d_rank + adj_t_rank + win_pct_rank_opp + adjoe_rank_opp + adjde_rank_opp + efg_o_rank_opp + efg_d_rank_opp + tor_rank_opp + tord_rank_opp + orb_rank_opp + drb_rank_opp + ftr_rank_opp + ftrd_rank_opp + twop_o_rank_opp + twop_d_rank_opp + threep_o_rank_opp + threep_d_rank_opp + adj_t_rank_opp')
+
+# assign all predictors to list
+metrics <- c('win_pct_rank', 'adjoe_rank', 'adjde_rank', 'efg_o_rank', 'efg_d_rank', 'tor_rank', 'tord_rank', 'orb_rank', 'drb_rank', 'ftr_rank', 'ftrd_rank', 'twop_o_rank', 'twop_d_rank', 'threep_o_rank', 'threep_d_rank', 'adj_t_rank', 'win_pct_rank_opp', 'adjoe_rank_opp', 'adjde_rank_opp', 'efg_o_rank_opp', 'efg_d_rank_opp', 'tor_rank_opp', 'tord_rank_opp', 'orb_rank_opp', 'drb_rank_opp', 'ftr_rank_opp', 'ftrd_rank_opp', 'twop_o_rank_opp', 'twop_d_rank_opp', 'threep_o_rank_opp', 'threep_d_rank_opp', 'adj_t_rank_opp')
+
+# specify training data 
+model <- paste0('~ ', paste(metrics, collapse = ' + ')) %>% formula()
+x <- model.matrix(model, data = data)
+test <- model.matrix(model, data = cbb20_testfinal)
+
+# fit the four candidate models
+random_forest <- randomForest(formula, data = data, method = 'rf', ntree = 200, na.action = na.omit)
+lasso_cv <- cv.glmnet(x = x, y = data$win, nfold = 100, alpha = 1)
+ridge_cv <- cv.glmnet(x = x, y = data$win, nfold = 100, alpha = 0)
+net_cv <- cv.glmnet(x = x, y = data$win, nfold = 100, alpha = .5)
+
+# generate predictions
+cbb20_testfinal$forest <- predict(random_forest, cbb20_testfinal)
+cbb20_testfinal$forest <- as.numeric(cbb20_testfinal$forest) -1
+cbb20_testfinal$lasso <- predict(lasso_cv, test, s = 'lambda.min')
+cbb20_testfinal$lasso <- round(cbb20_testfinal$lasso, 0)
+cbb20_testfinal$ridge <- predict(lasso_cv, test, s = 'lambda.min')
+cbb20_testfinal$ridge <- round(cbb20_testfinal$ridge, 0)
+cbb20_testfinal$net <- predict(lasso_cv, test, s = 'lambda.min')
+cbb20_testfinal$net <- round(cbb20_testfinal$net, 0)
+
+# calculate win totals from all 63 matchups
+cbb20_compositefinal <- cbb20_testfinal %>% 
+  group_by(team) %>% 
+  summarize(forest = sum(forest),
+            lasso = sum(lasso),
+            ridge = sum(ridge),
+            net = sum(net))
+
+# change column names to lower case
+names(cbb20_final) <- tolower(names(cbb20_final))
+
+# save cbb20_final and cbb20_compositefinal
+saveRDS(cbb20_final, "shiny/raw-data/cbb20_final.rds")
+saveRDS(cbb20_compositefinal, "shiny/raw-data/cbb20_compositefinal.rds")
+```
+
+```{r table}
+# generate table of win composite totals
+cbb20_compositefinal %>% 
+  left_join(cbb20_final, by = c("team")) %>% 
+  arrange(desc(forest)) %>% 
+  select(Team = team, "Random Forest" = forest, LASSO = lasso, Ridge = ridge, "Elastic Net" = net, Region = region, Seed = seed) %>% 
+  gt()
+```
+
+```{r R64}
+# create dataset of 64 teams and predictions
+bracket20 <- cbb20_compositefinal %>% 
+  left_join(cbb20_final, by = c("team")) %>% 
+  select(team:net, region:seed_opp) %>% 
+  left_join(cbb20_final, by = c("region", "seed_opp" = "seed"), suffix = c("", "_opp")) %>% 
+  select(region, team, seed, team_opp, seed_opp, forest:net) %>% 
+  left_join(cbb20_compositefinal, by = c("team_opp" = "team"), suffix = c("", "_opp")) %>% 
+  select(region, team, seed, team_opp, seed_opp, forest:net, forest_opp:net_opp) %>% 
+  mutate(win_pred = as.factor(ifelse(forest > forest_opp, 1, 0)),
+        seed = factor(seed, levels = c(1,16,8,9,5,12,4,13,6,11,3,14,7,10,2,15)))
+
+# override tie between Texas Tech and Illinois
+bracket20[53,14] <- 1
+
+# save data for shiny
+saveRDS(bracket20, "shiny/raw-data/bracket20.rds")
+
+# generate round of 64 bracket
+bracket20 %>%
+  filter(region == "Midwest") %>%
+  ggplot(aes(seed, forest)) +
+  geom_col(aes(fill = win_pred)) +
+  scale_fill_manual(name = "Outcome", labels = c("Loss", "Win"), values = c("coral1", "chartreuse1")) +
+  labs(x = "Seed", y = "Projected Wins") +
+  theme(axis.text.x = element_text(angle = 90)) +
+  theme_fivethirtyeight() +
+  geom_text(aes(label = team), size = 2) +
+  coord_flip()
+```
+
+```{r R32}
+# filter winners of R64
+r32_20 <- bracket20 %>% 
+  filter(win_pred == 1)
+
+# save and reload edited data
+write.csv(r32_20, "shiny/raw-data/r32_20_raw.csv")
+r32_20 <- read_csv("shiny/raw-data/r32_20.csv", col_types = cols())
+
+# join datasets for matchups
+r32_20 <- r32_20 %>% 
+  left_join(r32_20, by = c("seed_opp" = "seed", "region"), suffix = c("", "_opp")) %>% 
+  select(region, team, seed, team_opp, seed_opp, forest:net, forest_opp:net_opp) %>% 
+  mutate(win_pred = as.factor(ifelse(forest > forest_opp, 1, 0)),
+         seed = factor(seed, levels = c(1,16,8,9,5,12,4,13,6,11,3,14,7,10,2,15)))
+
+# save data for shiny
+saveRDS(r32_20, "shiny/raw-data/r32_20.rds")
+
+# generate round of 32 bracket
+r32_20 %>%
+  filter(region == "Midwest") %>%
+  ggplot(aes(seed, forest)) +
+  geom_col(aes(fill = win_pred)) +
+  scale_fill_manual(name = "Outcome", labels = c("Loss", "Win"), values = c("coral1", "chartreuse1")) +
+  labs(x = "Seed", y = "Projected Wins") +
+  theme(axis.text.x = element_text(angle = 90)) +
+  theme_fivethirtyeight() +
+  geom_text(aes(label = team), size = 3, hjust = 2) +
+  coord_flip()
+```
+
+```{r S16}
+# filter winners of R32
+s16_20 <- r32_20 %>% 
+  filter(win_pred == 1)
+
+# save and reload edited data
+write.csv(s16_20, "shiny/raw-data/s16_20_raw.csv")
+s16_20 <- read_csv("shiny/raw-data/s16_20.csv", col_types = cols())
+
+# join datasets for matchups
+s16_20 <- s16_20 %>% 
+  left_join(s16_20, by = c("team_opp" = "team", "region"), suffix = c("", "_opp")) %>% 
+  select(region, team, seed, team_opp, seed_opp, forest:net, forest_opp:net_opp) %>% 
+  mutate(win_pred = as.factor(ifelse(forest > forest_opp, 1, 0)),
+         seed = factor(seed, levels = c(1,16,8,9,5,12,4,13,6,11,3,14,7,10,2,15)))
+
+# save data for shiny
+saveRDS(s16_20, "shiny/raw-data/s16_20.rds")
+
+# generate sweet 16 bracket
+s16_20 %>%
+  filter(region == "Midwest") %>%
+  ggplot(aes(seed, forest)) +
+  geom_col(aes(fill = win_pred)) +
+  scale_fill_manual(name = "Outcome", labels = c("Loss", "Win"), values = c("coral1", "chartreuse1")) +
+  labs(x = "Seed", y = "Projected Wins") +
+  theme(axis.text.x = element_text(angle = 90)) +
+  theme_fivethirtyeight() +
+  geom_text(aes(label = team), size = 3, hjust = 2) +
+  coord_flip()
+```
+
+```{r E8}
+# filter winners of elite 8
+e8_20 <- s16_20 %>% 
+  filter(win_pred == 1)
+
+# save and reload edited data
+write.csv(e8_20, "shiny/raw-data/e8_20_raw.csv")
+e8_20 <- read_csv("shiny/raw-data/e8_20.csv", col_types = cols())
+
+# format data for save
+e8_20 <- e8_20 %>% 
+  mutate(win_pred = as.factor(ifelse(forest > forest_opp, 1, 0)),
+         seed = factor(seed, levels = c(1,16,8,9,5,12,4,13,6,11,3,14,7,10,2,15)))
+
+# save data for shiny
+saveRDS(e8_20, "shiny/raw-data/e8_20.rds")
+
+# generate elite eight bracket
+e8_20 %>%
+  filter(region == "Midwest") %>%
+  ggplot(aes(seed, forest)) +
+  geom_col(aes(fill = win_pred)) +
+  scale_fill_manual(name = "Outcome", labels = c("Loss", "Win"), values = c("coral1", "chartreuse1")) +
+  labs(x = "Seed", y = "Projected Wins") +
+  theme(axis.text.x = element_text(angle = 90)) +
+  theme_fivethirtyeight() +
+  geom_text(aes(label = team), size = 4, hjust = 2) +
+  coord_flip()
+```
+
+```{r F4}
+# filter winners of elite eight
+f4_20 <- e8_20 %>% 
+  filter(win_pred == 1)
+
+# save and reload edited data
+write.csv(f4_20, "shiny/raw-data/f4_20_raw.csv")
+f4_20 <- read_csv("shiny/raw-data/f4_20.csv", col_types = cols())
+
+# format data for save
+f4_20 <- f4_20 %>% 
+  mutate(win_pred = as.factor(ifelse(forest > forest_opp, 1, 0)),
+         seed = factor(seed, levels = c(1,16,8,9,5,12,4,13,6,11,3,14,7,10,2,15)))
+
+# save data for shiny
+saveRDS(f4_20, "shiny/raw-data/f4_20.rds")
+
+# generate elite eight bracket
+f4_20 %>%
+  ggplot(aes(fct_reorder(team, region_number), forest)) +
+  geom_col(aes(fill = win_pred)) +
+  scale_fill_manual(name = "Outcome", labels = c("Loss", "Win"), values = c("coral1", "chartreuse1")) +
+  labs(x = "Seed", y = "Projected Wins") +
+  theme(axis.text.x = element_text(angle = 90)) +
+  theme_fivethirtyeight() +
+  geom_text(aes(label = region), size = 4, hjust = 2) +
+  coord_flip()
+```
+
+```{r Finals}
+# filter winners of final four
+finals_20 <- f4_20 %>% 
+  filter(win_pred == 1) %>% 
+  select(region:forest) %>% 
+  mutate(forest_opp = c(62,63),
+         win_pred = as.factor(ifelse(forest > forest_opp, 1, 0)),
+         seed = factor(seed, levels = c(1,16,8,9,5,12,4,13,6,11,3,14,7,10,2,15)))
+
+# save data for shiny
+saveRDS(finals_20, "shiny/raw-data/finals_20.rds")
+
+# generate elite eight bracket
+finals_20 %>%
+  mutate(win_pred = factor(win_pred, levels = c(0,1), labels = c("Runner-Up", "Champion"))) %>% 
+  ggplot(aes(fct_reorder(team, region_number), forest)) +
+  geom_col(aes(fill = win_pred)) +
+  scale_fill_manual(name = "Outcome", values = c("coral1", "chartreuse1")) +
+  labs(x = "Seed", y = "Projected Wins") +
+  theme(axis.text.x = element_text(angle = 90)) +
+  theme_fivethirtyeight() +
+  geom_text(aes(label = win_pred), size = 4, hjust = 2) +
+  coord_flip()
+```

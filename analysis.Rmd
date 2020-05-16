@@ -230,7 +230,7 @@ season_test$ridge <- round(season_test$ridge, 0)
 season_test$net <- predict(lasso_cv, test, s = 'lambda.min')
 season_test$net <- round(season_test$net, 0)
 
-# calculate win probability of all 63 matchups
+# calculate win totals from all 63 matchups
 win_composite <- season_test %>% 
   group_by(year, team) %>% 
   summarize(forest = sum(forest),

@@ -1,0 +1,5 @@
+region,region_number,team,seed,forest,lasso,ridge,net,team_opp,seed_opp,forest_opp,lasso_opp,ridge_opp,net_opp
+East,2,Dayton,1,63,60,60,60,Baylor,1,60,63,63,63
+Midwest,3,Baylor,1,60,63,63,63,Dayton,1,63,60,60,60
+South,1,Kansas,1,59,62,62,62,Gonzaga,1,62,54,54,54
+West,4,Gonzaga,1,62,54,54,54,Kansas,1,59,62,62,62
